@@ -301,6 +301,10 @@
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
+
+                <button class="btn-control" onclick="toggleFullScreen()" title="ملء الشاشة">
+                    <i id="expandIcon" class="fas fa-expand"></i>
+                </button>
             </div>
         </div>
 
@@ -705,6 +709,38 @@
             audioPlayer.muted = !audioPlayer.muted;
             document.getElementById('muteIcon').className = audioPlayer.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
         }
+
+        function toggleFullScreen() {
+            const playerElement = document.getElementById('mainBg');
+            const expandIcon = document.getElementById('expandIcon');
+
+            if (!document.fullscreenElement) {
+                if (playerElement.requestFullscreen) {
+                    playerElement.requestFullscreen();
+                } else if (playerElement.webkitRequestFullscreen) {
+                    playerElement.webkitRequestFullscreen();
+                } else if (playerElement.msRequestFullscreen) {
+                    playerElement.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const expandIcon = document.getElementById('expandIcon');
+            if (!document.fullscreenElement) {
+                expandIcon.className = 'fas fa-expand';
+            } else {
+                expandIcon.className = 'fas fa-compress';
+            }
+        });
 
         audioPlayer.addEventListener('error', handleError);
         window.onload = initDropdown;
