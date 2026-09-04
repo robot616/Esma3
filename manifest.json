@@ -1,0 +1,22 @@
+{
+  "name": "Esma3 Fm",
+  "short_name": "Esma3 Fm",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#B96817",
+  "theme_color": "#B96817",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/Ss6GkB01/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.postimg.cc/5NnnHWXq/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207-(1).png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
