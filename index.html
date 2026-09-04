@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Esma3 Fm">
     <meta name="application-name" content="Esma3 Fm">
     
-    <!-- دمج ملف الـ Manifest مباشرة لضمان ظهور الأيقونة عند التثبيت -->
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Esma3%20Fm%22%2C%22short_name%22%3A%22Esma3%20Fm%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23111820%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2F9XBHF50Y%2Fpngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2F9XBHF50Y%2Fpngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D">
+    <!-- ملف الـ Manifest مشفر Base64 لضمان قراءته بشكل سليم وطلب تثبيت التطبيق -->
+    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkVzbWEzIEZtIiwKICAic2hvcnRfbmFtZSI6ICJFc21hMyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMDAwMDAwIiwKICAidGhlbWVfY29sb3IiOiAiIzExMTgyMCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vaS5wb3N0aW1nLmNjLzlYQkhGNTBZL3BuZ3RyZWUtcmVhbGlzdGljLTNkLXJlbmRlcmluZy1vZi1hLXZpbnRhZ2UtY29uY2VydC1vci1yYWRpby1taWNyb3Bob25lLWltYWdlLTM4MTYyMDcuanBnIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9qcGVnIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfSwKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2kucG9zdGltZy5jYy85WEJIRjUwWS9wbmd0cmVlLXJlYWxpc3RpYy0zZC1yZW5kZXJpbmctb2YtYS12aW50YWdlLWNvbmNlcnQtb3ItcmFkaW8tbWljcm9waG9uZS1pbWFnZS0zODE2MjA3LmpwZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvanBlZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=">
     
     <title>Esma3 Fm</title>
     
@@ -188,33 +188,20 @@
             pointer-events: auto;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            text-align: center;
-            position: relative;
-        }
-
-        .sidebar-header h2 {
-            font-size: 1.5rem;
-            color: var(--primary);
-        }
-
         .close-sidebar {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 15px;
+            top: 15px;
             background: none;
             border: none;
             color: white;
             font-size: 1.5rem;
             cursor: pointer;
+            z-index: 10;
         }
 
-        /* تنسيق مربع القائمة الرئيسي ليكون مميزاً عن الكروت */
         .dropdown-container {
-            padding: 20px 15px;
+            padding: 30px 15px 20px 15px;
             background-color: rgba(0, 0, 0, 0.4);
             border-bottom: 2px solid var(--primary);
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -297,14 +284,11 @@
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h2 id="currentCategoryTitle">القرآن الكريم</h2>
+        
+        <div class="dropdown-container">
             <button class="close-sidebar" onclick="closeSidebar()">
                 <i class="fas fa-times"></i>
             </button>
-        </div>
-        
-        <div class="dropdown-container">
             <label class="dropdown-label"><i class="fas fa-list"></i> اختر القسم الرئيسي:</label>
             <select id="categorySelect" class="category-dropdown" onchange="handleCategoryChange()">
             </select>
@@ -599,7 +583,6 @@
 
         const categorySelect = document.getElementById('categorySelect');
         const stationsContainer = document.getElementById('stationsContainer');
-        const currentCategoryTitle = document.getElementById('currentCategoryTitle');
         const audioPlayer = document.getElementById('audioPlayer');
         const mainStationName = document.getElementById('mainStationName');
         const mainStatusText = document.getElementById('mainStatusText');
@@ -628,7 +611,6 @@
         }
 
         function loadCategory(categoryName) {
-            currentCategoryTitle.textContent = categoryName;
             stationsContainer.innerHTML = '';
 
             const stations = radioData[categoryName];
