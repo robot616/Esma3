@@ -12,6 +12,9 @@
     <meta name="apple-mobile-web-app-title" content="Esma3 Fm">
     <meta name="application-name" content="Esma3 Fm">
     
+    <!-- دمج ملف الـ Manifest مباشرة لضمان ظهور الأيقونة عند التثبيت -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Esma3%20Fm%22%2C%22short_name%22%3A%22Esma3%20Fm%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23111820%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2F9XBHF50Y%2Fpngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fi.postimg.cc%2F9XBHF50Y%2Fpngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fjpeg%22%7D%5D%7D">
+    
     <title>Esma3 Fm</title>
     
     <link rel="icon" href="https://i.postimg.cc/9XBHF50Y/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg">
@@ -209,25 +212,55 @@
             cursor: pointer;
         }
 
+        /* تنسيق مربع القائمة الرئيسي ليكون مميزاً عن الكروت */
         .dropdown-container {
-            padding: 15px;
-            background-color: rgba(0, 0, 0, 0.15);
-            border-bottom: 2px solid rgba(0, 242, 254, 0.2);
+            padding: 20px 15px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .dropdown-label {
+            display: block;
+            color: #ccc;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
 
         .category-dropdown {
             width: 100%;
-            padding: 12px;
-            background: var(--card-bg);
-            color: var(--text-main);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            font-size: 1.1rem;
+            padding: 14px 15px 14px 40px;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.1), rgba(79, 172, 254, 0.1));
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+            border-radius: 12px;
+            font-size: 1.2rem;
             font-family: 'Tajawal', sans-serif;
-            font-weight: bold;
+            font-weight: 900;
             outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f2fe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 15px center; 
+            background-size: 1.2em;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+            transition: all 0.3s;
         }
-        .category-dropdown option { background-color: var(--sidebar-bg); }
+
+        .category-dropdown:focus {
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
+            background: rgba(0, 242, 254, 0.15);
+        }
+
+        .category-dropdown option { 
+            background-color: var(--sidebar-bg); 
+            color: #fff;
+        }
 
         .stations-container {
             flex: 1;
@@ -272,6 +305,7 @@
         </div>
         
         <div class="dropdown-container">
+            <label class="dropdown-label"><i class="fas fa-list"></i> اختر القسم الرئيسي:</label>
             <select id="categorySelect" class="category-dropdown" onchange="handleCategoryChange()">
             </select>
         </div>
