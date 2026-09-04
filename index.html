@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    <meta name="theme-color" content="#111820">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Esma3 Fm">
+    <meta name="application-name" content="Esma3 Fm">
+    
+    <title>Esma3 Fm</title>
+    
+    <link rel="icon" href="https://i.postimg.cc/9XBHF50Y/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/9XBHF50Y/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.jpg">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --sidebar-bg: #111820;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-main: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            background-color: #000;
+            color: var(--text-main);
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-player {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        .overlay-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 100%);
+            z-index: 2;
+        }
+
+        .glass-panel {
+            position: relative;
+            z-index: 3;
+            background: rgba(15, 23, 30, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .player-info h3 {
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-weight: 700;
+        }
+
+        .player-info p {
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .main-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn-control {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .btn-control:active { transform: scale(0.9); }
+
+        .btn-play-pause {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
+            transition: transform 0.2s;
+        }
+        .btn-play-pause:active { transform: scale(0.95); }
+
+        .btn-stop { color: #ff4d4d; }
+        
+        #errorMsg { color: #ff4d4d; margin-top: 15px; display: none; font-weight: bold; font-size: 0.9rem; }
+
+        .mobile-menu-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            font-size: 2rem;
+            color: white;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 320px;
+            background-color: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            z-index: 999;
+            transition: left 0.3s ease-in-out;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.8);
+        }
+        .sidebar.show { left: 0; }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .sidebar-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .close-sidebar {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .dropdown-container {
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.15);
+            border-bottom: 2px solid rgba(0, 242, 254, 0.2);
+        }
+
+        .category-dropdown {
+            width: 100%;
+            padding: 12px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: bold;
+            outline: none;
+        }
+        .category-dropdown option { background-color: var(--sidebar-bg); }
+
+        .stations-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        .stations-container::-webkit-scrollbar { width: 4px; }
+        .stations-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .station-card {
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .station-card.playing { border: 1px solid var(--primary); background: rgba(0, 242, 254, 0.1); }
+        .station-card.playing .play-icon { color: var(--primary); }
+        .station-card h3 { font-size: 1rem; font-weight: normal; }
+
+    </style>
+</head>
+<body>
+
+    <button class="mobile-menu-btn" onclick="openSidebar()">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+    </button>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 id="currentCategoryTitle">القرآن الكريم</h2>
+            <button class="close-sidebar" onclick="closeSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="dropdown-container">
+            <select id="categorySelect" class="category-dropdown" onchange="handleCategoryChange()">
+            </select>
+        </div>
+        
+        <div class="stations-container" id="stationsContainer"></div>
+    </aside>
+
+    <main class="main-player" id="mainBg">
+        <div class="overlay-bg"></div>
+        
+        <div class="glass-panel">
+            <div class="player-info">
+                <h3 id="mainStationName">Esma3 Fm</h3>
+                <p id="mainStatusText">اختر إذاعة للبدء</p>
+                <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
+            </div>
+
+            <div class="main-controls">
+                <button class="btn-control btn-stop" onclick="stopRadio()" title="إيقاف تام">
+                    <i class="fas fa-power-off"></i>
+                </button>
+                
+                <button class="btn-play-pause" id="playPauseBtn" onclick="togglePlay()">
+                    <i id="playIcon" class="fas fa-play"></i>
+                </button>
+                
+                <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
+                    <i id="muteIcon" class="fas fa-volume-up"></i>
+                </button>
+            </div>
+        </div>
+
+        <audio id="audioPlayer" preload="none"></audio>
+    </main>
+
+    <script>
+        const radioData = {
+            "القرآن الكريم": [
+                { name: "تلاوات رائعة", url: "https://stream-172.zeno.fm/bg2j1n5ntltuv?zt=eyJhbGciOiJIUzI1NiJ9" },
+                { name: "تلاوات خاشعة", url: "https://qurango.net/radio/salma" },
+                { name: "قرآن للقلب", url: "https://edge.mixlr.com/channel/rwumx" },
+                { name: "قرآن للروح", url: "http://104.7.66.64:8087/;?icy=http" },
+                { name: "سورة البقرة", url: "https://qurango.net/radio/albaqarah" },
+                { name: "الرقية الشرعية", url: "http://live.mp3quran.net:9936" },
+                { name: "آيات السكينة", url: "https://qurango.net/radio/sakeenah" },
+                { name: "الإذاعة العامة", url: "https://qurango.net/radio/mix" },
+                { name: "إذاعة القرآن الكريم (السعودية)", url: "https://stream.radiojar.com/0tpy1h0kxtzuv" },
+                { name: "إذاعة الحرم المكي", url: "http://r7.tarat.com:8004/stream?type=http&nocache=114" },
+                { name: "مشاري العفاسي", url: "https://qurango.net/radio/mishary_alafasi" },
+                { name: "ماهر المعيقلي", url: "https://qurango.net/radio/maher_al_meaqli" },
+                { name: "إسلام صبحي", url: "https://stream-164.zeno.fm/zorvpgdqfzbuv" },
+                { name: "أحمد الحواشي", url: "https://qurango.net/radio/ahmad_alhawashi" },
+                { name: "أحمد الطرابلسي", url: "https://qurango.net/radio/ahmed_altrabulsi" },
+                { name: "أحمد الطرابلسي (2)", url: "https://qurango.net/radio/ahmad_khader_altarabulsi" },
+                { name: "أحمد العجمي", url: "https://qurango.net/radio/ahmad_alajmy" },
+                { name: "أحمد خليل شاهين", url: "https://qurango.net/radio/ahmad_shaheen" },
+                { name: "أحمد ديبان", url: "https://qurango.net/radio/ahmad_deban" },
+                { name: "أحمد صابر", url: "https://qurango.net/radio/ahmad_saber" },
+                { name: "أحمد عامر", url: "https://qurango.net/radio/ahmed_amer" },
+                { name: "أحمد نعينع", url: "https://qurango.net/radio/ahmad_nauina" },
+                { name: "أكرم العلاقمي", url: "https://qurango.net/radio/akram_alalaqmi" },
+                { name: "إبراهيم الأخضر", url: "https://qurango.net/radio/ibrahim_alakdar" },
+                { name: "إدريس أبكر", url: "https://qurango.net/radio/idrees_abkr" },
+                { name: "إبراهيم الدوسري", url: "https://qurango.net/radio/ibrahim_aldosari" },
+                { name: "الدوكالي محمد العالم", url: "https://qurango.net/radio/addokali_mohammad_alalim" },
+                { name: "الزين محمد أحمد", url: "https://qurango.net/radio/alzain_mohammad_ahmad" },
+                { name: "العيون الكوشي", url: "https://qurango.net/radio/aloyoon_alkoshi" },
+                { name: "الفاتح محمد الزبير", url: "https://qurango.net/radio/alfateh_alzubair" },
+                { name: "القارئ ياسين", url: "https://qurango.net/radio/alqaria_yassen" },
+                { name: "بندر بليلة", url: "https://qurango.net/radio/bandar_balilah" },
+                { name: "توفيق الصايغ", url: "https://qurango.net/radio/tawfeeq_assayegh" },
+                { name: "جمال شاكر عبدالله", url: "https://qurango.net/radio/jamal_shaker_abdullah" },
+                { name: "جمعان العصيمي", url: "https://qurango.net/radio/jamaan_alosaimi" },
+                { name: "حاتم فريد الواعر", url: "https://qurango.net/radio/abdullah_alkandari" },
+                { name: "خالد الجليل", url: "https://qurango.net/radio/khalid_aljileel" },
+                { name: "خالد القحطاني", url: "https://qurango.net/radio/khaled_alqahtani" },
+                { name: "خالد المهنا", url: "https://qurango.net/radio/khalid_almohana" },
+                { name: "خالد عبدالكافي", url: "https://qurango.net/radio/khalid_abdulkafi" },
+                { name: "خليفة الطنيجي", url: "https://qurango.net/radio/khalifa_altunaiji" },
+                { name: "زكي داغستاني", url: "https://qurango.net/radio/zaki_daghistani" },
+                { name: "سعد الغامدي", url: "https://qurango.net/radio/saad_alghamdi" },
+                { name: "سعود الشريم", url: "https://qurango.net/radio/saud_alshuraim" },
+                { name: "سهل ياسين", url: "https://qurango.net/radio/sahl_yassin" },
+                { name: "سيد رمضان", url: "https://qurango.net/radio/sayeed_ramadan" },
+                { name: "أبو بكر الشاطري", url: "https://qurango.net/radio/shaik_abu_bakr_al_shatri" },
+                { name: "صابر عبدالحكم", url: "https://qurango.net/radio/saber_abdulhakm" },
+                { name: "صلاح البدير", url: "https://qurango.net/radio/salah_albudair" },
+                { name: "صلاح الهاشم", url: "https://qurango.net/radio/salah_alhashim" },
+                { name: "صلاح بو خاطر", url: "https://qurango.net/radio/slaah_bukhatir" },
+                { name: "طارق دعوب", url: "https://qurango.net/radio/tareq_abdulgani_daawob" },
+                { name: "عادل الكلباني", url: "https://qurango.net/radio/adel_alkhalbany" },
+                { name: "عادل ريان", url: "https://qurango.net/radio/adel_ryyan" },
+                { name: "عبدالبارئ الثبيتي", url: "https://qurango.net/radio/abdelbari_altoubayti" },
+                { name: "عبدالبارئ محمد", url: "https://qurango.net/radio/abdulbari_mohammad" },
+                { name: "عبدالباسط عبدالصمد", url: "https://qurango.net/radio/abdulbasit_abdulsamad" },
+                { name: "عبدالباسط عبدالصمد (2)", url: "https://qurango.net/radio/abdulbasit_abdulsamad_warsh" },
+                { name: "عبدالباسط عبدالصمد (مجود)", url: "https://qurango.net/radio/abdulbasit_abdulsamad_mojawwad" },
+                { name: "عبدالرحمن السديس", url: "https://qurango.net/radio/abdulrahman_alsudaes" },
+                { name: "عبدالرحمن الماجد", url: "https://qurango.net/radio/abdulrahman_almajed" },
+                { name: "عبدالرشيد صوفي", url: "https://qurango.net/radio/abdulrasheed_soufi_assosi" },
+                { name: "عبدالرشيد صوفي (2)", url: "https://qurango.net/radio/abdulrasheed_soufi_khalaf" },
+                { name: "عبدالعزيز الأحمد", url: "https://qurango.net/radio/abdul_aziz_alahmad" },
+                { name: "عبدالله الخلف", url: "https://qurango.net/radio/abdullah_alkhalaf" },
+                { name: "عبدالله الكندري", url: "https://qurango.net/radio/abdullah_alkandari" },
+                { name: "عبدالله المطرود", url: "https://qurango.net/radio/abdullah_almattrod" },
+                { name: "عبدالله الموسى", url: "https://qurango.net/radio/abdullah_almousa" },
+                { name: "عبدالله بصفر", url: "https://qurango.net/radio/abdullah_basfer" },
+                { name: "عبدالله خياط", url: "https://qurango.net/radio/abdullah_khayyat" },
+                { name: "عبدالله الجهني", url: "https://qurango.net/radio/abdullah_aljohany" },
+                { name: "عبدالمحسن الحارثي", url: "https://qurango.net/radio/abdulmohsin_alharthy" },
+                { name: "عبدالمحسن العبيكان", url: "https://qurango.net/radio/abdulmohsin_alobaikan" },
+                { name: "عبدالمحسن القاسم", url: "https://qurango.net/radio/abdulmohsen_alqasim" },
+                { name: "عبدالهادي كناكري", url: "https://qurango.net/radio/abdulhadi_kanakeri" },
+                { name: "عبدالودود حنيف", url: "https://qurango.net/radio/abdulwadood_haneef" },
+                { name: "علي الحذيفي", url: "https://qurango.net/radio/ali_alhuthaifi" },
+                { name: "علي جابر", url: "https://qurango.net/radio/ali_jaber" },
+                { name: "علي حجاج السويسي", url: "https://qurango.net/radio/ali_hajjaj_alsouasi" },
+                { name: "عماد حافظ", url: "https://qurango.net/radio/emad_hafez" },
+                { name: "عمر القزابري", url: "https://qurango.net/radio/omar_alqazabri" },
+                { name: "فارس عباد", url: "https://qurango.net/radio/fares_abbad" },
+                { name: "ماجد الزامل", url: "https://qurango.net/radio/majed_alzamel" },
+                { name: "ماهر شخاشيرو", url: "https://qurango.net/radio/maher_shakhashero" },
+                { name: "محمد أيوب", url: "https://qurango.net/radio/mohammed_ayyub" },
+                { name: "محمد أيوب (2)", url: "https://qurango.net/radio/ayyoub2" },
+                { name: "محمد الطبلاوي", url: "https://qurango.net/radio/mohammad_altablaway" },
+                { name: "محمد اللحيدان", url: "https://qurango.net/radio/mohammed_allohaidan" },
+                { name: "محمد جبريل", url: "https://qurango.net/radio/mohammed_jibreel" },
+                { name: "محمد رشاد الشريف", url: "https://qurango.net/radio/mohammad_rashad_alshareef" },
+                { name: "محمد صالح عالم شاه", url: "https://qurango.net/radio/mohammad_saleh_alim_shah" },
+                { name: "محمد صديق المنشاوي", url: "https://qurango.net/radio/mohammed_siddiq_alminshawi" },
+                { name: "محمد صديق المنشاوي (مجود)", url: "https://qurango.net/radio/mohammed_siddiq_alminshawi_mojawwad" },
+                { name: "محمد عبدالحكيم", url: "https://qurango.net/radio/mohammad_alabdullah_albizi" },
+                { name: "محمد عبدالحكيم (2)", url: "https://qurango.net/radio/mohammad_alabdullah_aldorai" },
+                { name: "محمد عبدالكريم", url: "https://qurango.net/radio/mohammad_abdullkarem" },
+                { name: "محمد عبدالكريم (2)", url: "https://qurango.net/radio/mohammad_abdullkarem_alasbahani" },
+                { name: "محمد عثمان خان", url: "https://qurango.net/radio/mohammed_osman_khan" },
+                { name: "محمود الرفاعي", url: "https://qurango.net/radio/mahmood_al_rifai" },
+                { name: "محمود الشيمي", url: "https://qurango.net/radio/mahmood_alsheimy" },
+                { name: "محمود خليل الحصري", url: "https://qurango.net/radio/mahmoud_khalil_alhussary" },
+                { name: "محمود خليل الحصري (2)", url: "https://qurango.net/radio/mahmoud_khalil_alhussary_warsh" },
+                { name: "محمود خليل الحصري (مجود)", url: "https://qurango.net/radio/mahmoud_khalil_alhussary_mojawwad" },
+                { name: "محمود علي البنا", url: "https://qurango.net/radio/mahmoud_ali__albanna" },
+                { name: "محمود علي البنا (مجود)", url: "https://qurango.net/radio/mahmoud_ali__albanna_mojawwad" },
+                { name: "مصطفى إسماعيل", url: "https://qurango.net/radio/mustafa_ismail" },
+                { name: "مصطفى اللاهوني", url: "https://qurango.net/radio/mustafa_allahoni" },
+                { name: "مصطفى رعد العزاوي", url: "https://qurango.net/radio/mustafa_raad_alazawy" },
+                { name: "معيض الحارثي", url: "https://qurango.net/radio/moeedh_alharthi" },
+                { name: "مفتاح السلطني", url: "https://qurango.net/radio/muftah_alsaltany_ibn_thakwan_an_ibn_amr" },
+                { name: "مفتاح السلطني (2)", url: "https://qurango.net/radio/muftah_alsaltany_aldori_an_abi_amr" },
+                { name: "مفتاح السلطني (3)", url: "https://qurango.net/radio/muftah_alsaltany_aldorai" },
+                { name: "موسى بلال", url: "https://qurango.net/radio/mousa_bilal" },
+                { name: "ناصر العصفور", url: "https://qurango.net/radio/nasser_alosfor" },
+                { name: "ناصر القطامي", url: "https://qurango.net/radio/nasser_alqatami" },
+                { name: "ناصر الماجد", url: "https://qurango.net/radio/nasser_almajed" },
+                { name: "نبيل الرفاعي", url: "https://qurango.net/radio/nabil_al_rifay" },
+                { name: "نعمة الحسان", url: "https://qurango.net/radio/neamah_alhassan" },
+                { name: "هاني الرفاعي", url: "https://qurango.net/radio/hani_arrifai" },
+                { name: "هيثم الجدعاني", url: "https://qurango.net/radio/hitham_aljadani" },
+                { name: "وليد النائحي", url: "https://qurango.net/radio/waleed_alnaehi" },
+                { name: "ياسر الدوسري", url: "https://qurango.net/radio/yasser_aldosari" },
+                { name: "ياسر القرشي", url: "https://qurango.net/radio/yasser_alqurashi" },
+                { name: "ياسر المزروعي", url: "https://qurango.net/radio/yasser_almazroyee" },
+                { name: "يحيى حوى", url: "https://qurango.net/radio/yahya_hawwa" },
+                { name: "يوسف الشويعي", url: "https://qurango.net/radio/yousef_alshoaey" },
+                { name: "يوسف بن نوح", url: "https://qurango.net/radio/yousef_bin_noah_ahmad" }
+            ],
+            "إسلاميات": [
+                { name: "أذكار الصباح", url: "https://qurango.net/radio/athkar_sabah" },
+                { name: "أذكار المساء", url: "https://qurango.net/radio/athkar_masa" },
+                { name: "نور على نور", url: "http://104.7.66.64:8011/;?icy=http" },
+                { name: "السلام إف إم", url: "https://stream-157.zeno.fm/hv3uuw9avuhvv?zt=eyJhbGciOiJIUzI1NiJ9" },
+                { name: "الشيخ الشعراوي", url: "http://66.45.232.132:9996/;" },
+                { name: "الشيخ الشعراوي 2", url: "http://104.7.66.64:8088/;?icy=http" },
+                { name: "الشيخ الشعراوي 3", url: "https://stream-175.zeno.fm/guuggdfrvssuv?zt=eyJhbGciOiJIUzI1NiJ9" },
+                { name: "المختصر في تفسير القرآن", url: "https://qurango.net/radio/mukhtasartafsir" },
+                { name: "السيرة النبوية", url: "http://104.7.66.64:8089/;?icy=http" },
+                { name: "المختصر في السيرة النبوية", url: "https://qurango.net/radio/almukhtasar_fi_alsiyra" },
+                { name: "في ظلال السيرة النبوية", url: "https://qurango.net/radio/fi_zilal_alsiyra" },
+                { name: "صور من حياة الصحابة", url: "https://qurango.net/radio/sahabah" },
+                { name: "فتاوى", url: "http://live.mp3quran.net:8014" },
+                { name: "كتاب الاختيارات الفقهية", url: "https://qurango.net/radio/alaikhtiarat_alfiqhayh_bin_baz" }
+            ],
+            "منوعات": [
+                { name: "راديو الفجر (فلسطين)", url: "https://rstream.hadara.ps/proxy/fajerfm/stream" }
+            ],
+            "أغاني": [
+                { name: "ميلودي عربية", url: "https://stream.zeno.fm/3gkedytbapbuv" },
+                { name: "كلرز إف إم", url: "https://stream-176.zeno.fm/g21n8qvxhchvv" },
+                { name: "نجوم المحطة", url: "https://stream-175.zeno.fm/xx92qc3x8p8uv" },
+                { name: "راديو تون", url: "https://stream-168.zeno.fm/8skvgnymrznuv" },
+                { name: "أنغامي إف إم", url: "https://stream-170.zeno.fm/ynqtbsfhnnlvv" },
+                { name: "سولي راديو", url: "https://stream-154.zeno.fm/juwfhuodjgmuv" },
+                { name: "عرب ميكس", url: "https://stream.zeno.fm/cqd6hz68m98uv" },
+                { name: "مصر 2030", url: "https://stream-179.zeno.fm/ttb0n2n10ehvv" },
+                { name: "إيجي أون إير", url: "https://radio.socialgenix.com/8004/stream" },
+                { name: "كايرو أب", url: "https://stream-176.zeno.fm/k0qxxuxfn98uv" },
+                { name: "راديو الأيام", url: "https://stream-178.zeno.fm/1gbtxgd0gchvv" },
+                { name: "أرابيك مود", url: "https://stream-178.zeno.fm/5sfhn8ef8qquv" },
+                { name: "مين راديو", url: "http://stream-57.zeno.fm/ebitxokyr7ptv" },
+                { name: "راب مصري", url: "https://stream-173.zeno.fm/hpnur4rqkezvv" },
+                { name: "مروان بابلو", url: "https://stream-176.zeno.fm/frvxg7wgeq8uv" },
+                { name: "ساسا ريمكس", url: "https://stream-175.zeno.fm/1x3q5zdzytavv" },
+                { name: "مهرجانات", url: "https://stream-164.zeno.fm/jgpeumj4ioiuv" },
+                { name: "أرابيكا", url: "https://stream.zeno.fm/6sjvsurlqunuv" },
+                { name: "نسائم سوريا", url: "https://stream-166.zeno.fm/z15eg3k7gxquv" },
+                { name: "راديو ستار لبنان", url: "https://stream-156.zeno.fm/qv4bv7t3afhvv" },
+                { name: "أغاني أغاني", url: "https://streaming.nrjaudio.fm/ou6pfgxp336f" },
+                { name: "راديو أنغام", url: "http://streamer.mada.ps:8010/ANGHAM" },
+                { name: "أهل القصيد", url: "https://radio-ahlalqaseedfm.mbc.net/radio-ahlalqaseedfm.m3u8" },
+                { name: "ميكس إف إم السعودية", url: "https://s1.voscast.com:11377/live.mp3" },
+                { name: "إم بي سي مود", url: "https://radio-mbc-mood.mbc.net/radio-mbc-mood.m3u8" },
+                { name: "كاسيت عربي", url: "https://radio-cassette-araby.mbc.net/radio-cassette-araby.m3u8" },
+                { name: "تسعينات إف إم", url: "https://eu1.fastcast4u.com/proxy/prontofm?mp=/1" },
+                { name: "أيام زمان", url: "https://stream-10.zeno.fm/xda10sbtsg0uv" },
+                { name: "راديو ستار طرب", url: "https://stream-168.zeno.fm/rdfc51c4mfhvv" },
+                { name: "نعيم حلاوي", url: "https://streamer.radio.co/sf2fa6ce9d/listen" },
+                { name: "مود إف إم", url: "https://radio-moodfm.mbc.net/radio-moodfm.m3u8" },
+                { name: "ألحان زمان", url: "https://stream-159.zeno.fm/tb47xcqv1zhvv" },
+                { name: "راديو ألحان", url: "https://stream-63.zeno.fm/407axfdtcphvv" }
+            ],
+            "مطربين": [
+                { name: "أم كلثوم", url: "http://sawtelghad.org:8006/;" },
+                { name: "أم كلثوم 2", url: "https://stream-165.zeno.fm/hp0vu6c0pnhvv" },
+                { name: "كوكب الشرق", url: "https://stream-154.zeno.fm/puv30d6l1bjtv" },
+                { name: "عبدالحليم حافظ", url: "https://stream-179.zeno.fm/8a4eqkd0pnhvv" },
+                { name: "محمد عبدالوهاب", url: "https://stream-173.zeno.fm/wfhcn7k0pnhvv" },
+                { name: "فيروز", url: "https://stream-178.zeno.fm/xkhnk4vee18uv" },
+                { name: "فيروزيات", url: "https://stream-17.zeno.fm/9vrahqqfuuhvv" },
+                { name: "نغم فيروز", url: "https://stream-175.zeno.fm/24ydgrmvpg8uv" },
+                { name: "دياب إف إم", url: "http://stream.zeno.fm/rf64mx02qa0uv" },
+                { name: "عمرو دياب إف إم", url: "https://stream-153.zeno.fm/xa4yhh4k838uv" },
+                { name: "راديو دياب", url: "https://stream-172.zeno.fm/9t15vs7bkfhvv" },
+                { name: "راديو إليسا", url: "https://stream.zeno.fm/v7n499m8ckhvv" },
+                { name: "محمد محيي", url: "https://stream-170.zeno.fm/gql4tcwrrxgtv" },
+                { name: "ماهر زين", url: "https://stream-161.zeno.fm/u2nsk8cs5f0uv" },
+                { name: "الشيخ ياسين التهامي", url: "https://stream-171.zeno.fm/s01hxee9fg8uv" },
+                { name: "أحمد التوني", url: "https://stream-172.zeno.fm/v2d90re9fg8uv" }
+            ],
+            "ثقافة ودراما": [
+                { name: "راديو طبيب", url: "https://stream-174.zeno.fm/z6exeh5qc0hvv" },
+                { name: "مصطفى محمود", url: "https://stream-173.zeno.fm/t3azszm0pnhvv" },
+                { name: "أحمد خالد توفيق", url: "https://stream-179.zeno.fm/qbkzrtpwsgquv" },
+                { name: "عرب ميكس دراما", url: "https://stream.zeno.fm/ct8habf171zuv" },
+                { name: "راديو حكي", url: "https://stream-173.zeno.fm/io6lykscabfvv" },
+                { name: "وينزي إف إم", url: "https://stream-158.zeno.fm/yfbtswgior5uv" },
+                { name: "كلمتين وبس", url: "https://stream-176.zeno.fm/0q8a4evhvg0uv" },
+                { name: "أبلة فضيلة", url: "https://stream-179.zeno.fm/92t25aakvg0uv" }
+            ],
+            "رياضة": [
+                { name: "أون سبورت", url: "https://carina.streamerr.co:2020/stream/OnSportFM" },
+                { name: "راديو مارس", url: "https://radiomars.ice.infomaniak.ch/radiomars-128.mp3" },
+                { name: "يو إف إم", url: "https://stream.ufmradio.com:8003/;" },
+                { name: "بي إن سبورت 1", url: "http://62.138.18.147:11000/play/live/bb1.ts?uid=ipaudio&delay=-1" },
+                { name: "بي إن سبورت 2", url: "http://62.138.18.147:11000/play/live/bb2.ts?uid=ipaudio&delay=-1" },
+                { name: "بي إن سبورت 3", url: "http://62.138.18.147:11000/play/live/bb3.ts?uid=ipaudio&delay=-1" },
+                { name: "بي إن سبورت 4", url: "http://62.138.18.147:11000/play/live/bb4.ts?uid=ipaudio&delay=-1" },
+                { name: "بي إن سبورت 5", url: "http://62.138.18.147:11000/play/live/bb5.ts?uid=ipaudio&delay=-1" },
+                { name: "بي إن سبورت 6", url: "http://62.138.18.147:11000/play/live/bb6.ts?uid=ipaudio&delay=-1" },
+                { name: "بي إن سبورت 7", url: "http://62.138.18.147:11000/play/live/bb7.ts?uid=ipaudio&delay=-1" },
+                { name: "فوكس إف إم 1", url: "http://foxfm.xyz/1" },
+                { name: "فوكس إف إم 2", url: "http://foxfm.xyz/2" },
+                { name: "فوكس إف إم 3", url: "http://foxfm.xyz/3" },
+                { name: "فوكس إف إم 4", url: "http://foxfm.xyz/4" },
+                { name: "فوكس إف إم 5", url: "http://foxfm.xyz/5" },
+                { name: "فوكس إف إم 6", url: "http://foxfm.xyz/6" },
+                { name: "فوكس إف إم 7", url: "http://foxfm.xyz/7" },
+                { name: "فوكس إف إم 8", url: "http://foxfm.xyz/8" },
+                { name: "فوكس إف إم 9", url: "http://foxfm.xyz/9" },
+                { name: "أنيس إف إم 1", url: "http://anisfm.ddns.net" },
+                { name: "أنيس إف إم 1 (ua)", url: "http://anisfm.pp.ua/1" },
+                { name: "أنيس إف إم 2", url: "http://anisfm2.ddns.net" },
+                { name: "أنيس إف إم 2 (ua)", url: "http://anisfm.pp.ua/2" },
+                { name: "أنيس إف إم 3", url: "http://anisfm3.ddns.net" },
+                { name: "أنيس إف إم 3 (ua)", url: "http://anisfm.pp.ua/3" },
+                { name: "أنيس إف إم 4", url: "http://anisfm4.ddns.net" },
+                { name: "أنيس إف إم 4 (ua)", url: "http://anisfm.pp.ua/4" },
+                { name: "أنيس إف إم 5", url: "http://anisfm5.ddns.net" },
+                { name: "أنيس إف إم 5 (ua)", url: "http://anisfm.pp.ua/5" },
+                { name: "أنيس إف إم Max 1", url: "http://anisfm.pp.ua/Mx1" },
+                { name: "أنيس إف إم Max 2", url: "http://anisfm.pp.ua/Mx2" },
+                { name: "يحيى 1", url: "https://djuplink.com/live12.ogg" },
+                { name: "يحيى 2", url: "https://djuplink.com/live11.ogg" },
+                { name: "أصوات الويب 1", url: "http://78.129.252.13:24460/stream" },
+                { name: "أصوات الويب 2", url: "http://stream.zeno.fm/ktcdkm8w1qruv.mp3" }
+            ]
+        };
+
+        const categorySelect = document.getElementById('categorySelect');
+        const stationsContainer = document.getElementById('stationsContainer');
+        const currentCategoryTitle = document.getElementById('currentCategoryTitle');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const mainStationName = document.getElementById('mainStationName');
+        const mainStatusText = document.getElementById('mainStatusText');
+        const playIcon = document.getElementById('playIcon');
+        const errorMsg = document.getElementById('errorMsg');
+        
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        let currentPlayingCard = null;
+        let hlsInstance = null; 
+
+        function initDropdown() {
+            Object.keys(radioData).forEach((categoryName) => {
+                const option = document.createElement('option');
+                option.value = categoryName;
+                option.textContent = categoryName;
+                categorySelect.appendChild(option);
+            });
+            categorySelect.value = 'القرآن الكريم';
+            loadCategory('القرآن الكريم');
+        }
+
+        function handleCategoryChange() {
+            loadCategory(categorySelect.value);
+        }
+
+        function loadCategory(categoryName) {
+            currentCategoryTitle.textContent = categoryName;
+            stationsContainer.innerHTML = '';
+
+            const stations = radioData[categoryName];
+            stations.forEach(station => {
+                const card = document.createElement('div');
+                card.className = 'station-card';
+                card.innerHTML = `<h3>${station.name}</h3> <i class="fas fa-play play-icon"></i>`;
+                card.onclick = () => playStation(station, card);
+                stationsContainer.appendChild(card);
+            });
+        }
+
+        function openSidebar() {
+            sidebar.classList.add('show');
+            sidebarOverlay.classList.add('show');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        }
+
+        function playStation(station, cardElement) {
+            errorMsg.style.display = 'none';
+            mainStatusText.textContent = "جاري الاتصال...";
+
+            document.querySelectorAll('.station-card').forEach(c => {
+                c.classList.remove('playing');
+                c.querySelector('.play-icon').className = 'fas fa-play play-icon';
+            });
+            
+            cardElement.classList.add('playing');
+            cardElement.querySelector('.play-icon').className = 'fas fa-music play-icon'; 
+            currentPlayingCard = cardElement;
+            
+            mainStationName.textContent = station.name;
+            playIcon.className = 'fas fa-spinner fa-spin'; 
+
+            closeSidebar();
+
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+
+            if ((station.url.includes('.m3u8') || station.url.includes('.ts')) && Hls.isSupported()) {
+                hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
+                hlsInstance.loadSource(station.url);
+                hlsInstance.attachMedia(audioPlayer);
+                hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                    audioPlayer.play().then(onPlaySuccess).catch(handleError);
+                });
+                hlsInstance.on(Hls.Events.ERROR, function (event, data) { 
+                     if (data.fatal) {
+                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
+                        else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
+                        else handleError();
+                    }
+                });
+            } else {
+                audioPlayer.src = station.url;
+                audioPlayer.play().then(onPlaySuccess).catch(handleError);
+            }
+        }
+
+        function onPlaySuccess() {
+            playIcon.className = 'fas fa-pause';
+            mainStatusText.textContent = "يتم التشغيل الآن";
+            errorMsg.style.display = 'none';
+        }
+
+        function handleError() {
+            playIcon.className = 'fas fa-play';
+            mainStatusText.textContent = "فشل التشغيل";
+            errorMsg.style.display = 'block';
+            if (currentPlayingCard) currentPlayingCard.querySelector('.play-icon').className = 'fas fa-play play-icon';
+        }
+
+        function togglePlay() {
+            if (!audioPlayer.src && !hlsInstance) {
+                openSidebar();
+                return; 
+            }
+            
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playIcon.className = 'fas fa-pause';
+                mainStatusText.textContent = "يتم التشغيل الآن";
+            } else {
+                audioPlayer.pause();
+                playIcon.className = 'fas fa-play';
+                mainStatusText.textContent = "متوقف مؤقتاً";
+            }
+        }
+
+        function stopRadio() {
+            if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
+            audioPlayer.pause();
+            audioPlayer.removeAttribute('src'); 
+            audioPlayer.load(); 
+
+            playIcon.className = 'fas fa-play';
+            mainStationName.textContent = 'Esma3 Fm';
+            mainStatusText.textContent = 'تم إيقاف التشغيل (توفير البيانات)';
+            errorMsg.style.display = 'none';
+
+            if (currentPlayingCard) {
+                currentPlayingCard.classList.remove('playing');
+                currentPlayingCard.querySelector('.play-icon').className = 'fas fa-play play-icon';
+                currentPlayingCard = null;
+            }
+        }
+
+        function toggleMute() {
+            audioPlayer.muted = !audioPlayer.muted;
+            document.getElementById('muteIcon').className = audioPlayer.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+        }
+
+        audioPlayer.addEventListener('error', handleError);
+        window.onload = initDropdown;
+    </script>
+</body>
+</html>
