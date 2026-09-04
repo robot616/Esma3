@@ -434,7 +434,6 @@
             </div>
 
             <div class="main-controls">
-                
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
@@ -454,14 +453,13 @@
                 <button class="btn-control" onclick="toggleFullScreen()" title="ملء الشاشة">
                     <i id="expandIcon" class="fas fa-expand"></i>
                 </button>
-                
             </div>
         </div>
 
-        <audio id="audioPlayer" preload="none"></audio>
+        <!-- إضافة playsinline لدعم التشغيل الاحترافي على الموبايلات -->
+        <audio id="audioPlayer" preload="none" playsinline></audio>
     </main>
 
-    <!-- رسالة التنبيه المنبثقة -->
     <div id="toastMessage" class="toast-msg">الراديو يدعم التشغيل في الخلفية، فقط اضغط على زر الرئيسية في هاتفك وسيستمر الصوت.</div>
 
     <script>
@@ -744,6 +742,7 @@
             }
         }
 
+        // إرسال البيانات للمشغل الخارجي
         function updateMediaSessionMetadata(stationName) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -818,7 +817,6 @@
             mainStationName.textContent = station.name;
             playIcon.className = 'fas fa-spinner fa-spin'; 
 
-            updateMediaSessionMetadata(station.name);
             closeSidebar();
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
@@ -843,10 +841,13 @@
             }
         }
 
+        // تم نقل إرسال البيانات للمشغل هنا لتتزامن مع بداية الصوت الفعلي
         function onPlaySuccess() {
             playIcon.className = 'fas fa-pause';
             mainStatusText.textContent = "يتم التشغيل الآن";
             errorMsg.style.display = 'none';
+            
+            updateMediaSessionMetadata(mainStationName.textContent);
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         }
 
@@ -987,7 +988,6 @@
             }
         });
 
-        // إظهار رسالة التنبيه (Toast) عند النقر على زر التصغير
         function minimizePlayer() {
             const toast = document.getElementById('toastMessage');
             toast.classList.add('show');
