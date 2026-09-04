@@ -85,22 +85,6 @@
             transition: all 0.3s ease;
         }
 
-        /* حالة التصغير */
-        .glass-panel.minimized {
-            padding: 15px;
-            width: 90%;
-            position: absolute;
-            bottom: 30px;
-            top: auto;
-            border-radius: 20px;
-            transform: scale(0.9);
-            background: rgba(15, 23, 30, 0.85);
-        }
-        .glass-panel.minimized .player-info h3 { font-size: 1.3rem; margin-bottom: 5px; }
-        .glass-panel.minimized .player-info p { font-size: 1rem; margin-bottom: 15px; }
-        .glass-panel.minimized .main-controls { gap: 15px; }
-        .glass-panel.minimized .btn-play-pause { width: 60px; height: 60px; font-size: 1.8rem; }
-
         .player-info h3 {
             font-size: 1.8rem;
             color: #ffffff;
@@ -173,7 +157,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        /* الأزرار العلوية يمين */
         .top-actions {
             position: absolute;
             top: 25px;
@@ -365,6 +348,33 @@
         .station-card.playing .play-icon { color: var(--primary); }
         .station-card h3 { font-size: 1rem; font-weight: normal; }
 
+        /* رسالة التنبيه (Toast) */
+        .toast-msg {
+            visibility: hidden;
+            min-width: 250px;
+            background: rgba(15, 23, 30, 0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 12px;
+            padding: 15px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: 1px solid var(--primary);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+        .toast-msg.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
     </style>
 </head>
 <body>
@@ -374,17 +384,14 @@
     </button>
 
     <div class="top-actions">
-        <!-- زر إيقاف تام -->
         <button class="btn-top btn-stop" onclick="stopRadio()" title="إيقاف تام للمحطة لتوفير البيانات">
             <i class="fas fa-power-off"></i>
         </button>
         
-        <!-- زر التصغير للعمل بالخلفية -->
-        <button class="btn-top" onclick="minimizePlayer()" title="تصغير للعمل بالخلفية">
+        <button class="btn-top" onclick="minimizePlayer()" title="تشغيل في الخلفية">
             <i class="fas fa-window-minimize"></i>
         </button>
 
-        <!-- زر مؤقت النوم (Sleep Timer) مع ساعة الإيقاف -->
         <div class="sleep-timer-container">
             <button class="btn-top" onclick="toggleSleepMenu()" title="مؤقت النوم" id="sleepBtn">
                 <i class="fas fa-stopwatch"></i>
@@ -426,7 +433,6 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- أزرار التحكم مرتبة حسب الطلب -->
             <div class="main-controls">
                 
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
@@ -454,6 +460,9 @@
 
         <audio id="audioPlayer" preload="none"></audio>
     </main>
+
+    <!-- رسالة التنبيه المنبثقة -->
+    <div id="toastMessage" class="toast-msg">الراديو يدعم التشغيل في الخلفية، فقط اضغط على زر الرئيسية في هاتفك وسيستمر الصوت.</div>
 
     <script>
         const radioData = {
@@ -720,13 +729,34 @@
 
         let currentPlayingCard = null;
         let hlsInstance = null; 
-
-        // متغيرات للتعقب والتنقل
         let currentCategory = 'القرآن الكريم';
         let currentStationIndex = -1;
-
-        // متغيرات مؤقت النوم
         let sleepTimerId = null;
+
+        // إعداد Media Session API
+        function setupMediaSession() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', togglePlay);
+                navigator.mediaSession.setActionHandler('pause', togglePlay);
+                navigator.mediaSession.setActionHandler('previoustrack', playPrevStation);
+                navigator.mediaSession.setActionHandler('nexttrack', playNextStation);
+                navigator.mediaSession.setActionHandler('stop', stopRadio);
+            }
+        }
+
+        function updateMediaSessionMetadata(stationName) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: stationName,
+                    artist: 'Esma3 Fm',
+                    album: 'البث المباشر',
+                    artwork: [
+                        { src: 'https://i.postimg.cc/Ss6GkB01/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.png', sizes: '192x192', type: 'image/png' },
+                        { src: 'https://i.postimg.cc/5NnnHWXq/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207-(1).png', sizes: '512x512', type: 'image/png' }
+                    ]
+                });
+            }
+        }
 
         function initDropdown() {
             Object.keys(radioData).forEach((categoryName) => {
@@ -737,6 +767,7 @@
             });
             categorySelect.value = 'القرآن الكريم';
             loadCategory('القرآن الكريم');
+            setupMediaSession();
         }
 
         function handleCategoryChange() {
@@ -787,6 +818,7 @@
             mainStationName.textContent = station.name;
             playIcon.className = 'fas fa-spinner fa-spin'; 
 
+            updateMediaSessionMetadata(station.name);
             closeSidebar();
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
@@ -815,6 +847,7 @@
             playIcon.className = 'fas fa-pause';
             mainStatusText.textContent = "يتم التشغيل الآن";
             errorMsg.style.display = 'none';
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         }
 
         function handleError() {
@@ -822,6 +855,7 @@
             mainStatusText.textContent = "فشل التشغيل";
             errorMsg.style.display = 'block';
             if (currentPlayingCard) currentPlayingCard.querySelector('.play-icon').className = 'fas fa-play play-icon';
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
         }
 
         function togglePlay() {
@@ -834,21 +868,20 @@
                 audioPlayer.play();
                 playIcon.className = 'fas fa-pause';
                 mainStatusText.textContent = "يتم التشغيل الآن";
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
             } else {
                 audioPlayer.pause();
                 playIcon.className = 'fas fa-play';
                 mainStatusText.textContent = "متوقف مؤقتاً";
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
             }
         }
 
-        // تشغيل المحطة القادمة
         function playNextStation() {
             const stations = radioData[currentCategory];
             if (!stations) return;
-            
             let nextIndex = currentStationIndex + 1;
             if (nextIndex >= stations.length) nextIndex = 0;
-            
             const cards = document.querySelectorAll('.station-card');
             if (cards[nextIndex]) {
                 currentStationIndex = nextIndex;
@@ -857,15 +890,12 @@
             }
         }
 
-        // تشغيل المحطة السابقة
         function playPrevStation() {
             const stations = radioData[currentCategory];
             if (!stations) return;
-            
             let prevIndex = currentStationIndex - 1;
             if (prevIndex < 0) prevIndex = stations.length - 1;
             if (currentStationIndex === -1) prevIndex = stations.length - 1;
-            
             const cards = document.querySelectorAll('.station-card');
             if (cards[prevIndex]) {
                 currentStationIndex = prevIndex;
@@ -874,7 +904,6 @@
             }
         }
 
-        // الإيقاف التام للراديو
         function stopRadio() {
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             audioPlayer.pause();
@@ -892,13 +921,14 @@
                 currentPlayingCard = null;
             }
 
-            // إيقاف مؤقت النوم إن وجد
             if (sleepTimerId) {
                 clearTimeout(sleepTimerId);
                 sleepTimerId = null;
                 document.getElementById('sleepBtn').classList.remove('active-sleep');
                 document.getElementById('sleepBadge').style.display = 'none';
             }
+
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
         }
 
         function toggleMute() {
@@ -909,36 +939,22 @@
         function toggleFullScreen() {
             const playerElement = document.getElementById('mainBg');
             const expandIcon = document.getElementById('expandIcon');
-
             if (!document.fullscreenElement) {
-                if (playerElement.requestFullscreen) {
-                    playerElement.requestFullscreen();
-                } else if (playerElement.webkitRequestFullscreen) {
-                    playerElement.webkitRequestFullscreen();
-                } else if (playerElement.msRequestFullscreen) {
-                    playerElement.msRequestFullscreen();
-                }
+                if (playerElement.requestFullscreen) playerElement.requestFullscreen();
+                else if (playerElement.webkitRequestFullscreen) playerElement.webkitRequestFullscreen();
+                else if (playerElement.msRequestFullscreen) playerElement.msRequestFullscreen();
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
             }
         }
 
         document.addEventListener('fullscreenchange', () => {
             const expandIcon = document.getElementById('expandIcon');
-            if (!document.fullscreenElement) {
-                expandIcon.className = 'fas fa-expand';
-            } else {
-                expandIcon.className = 'fas fa-compress';
-            }
+            expandIcon.className = !document.fullscreenElement ? 'fas fa-expand' : 'fas fa-compress';
         });
 
-        // دوال مؤقت النوم (Sleep Timer)
         function toggleSleepMenu() {
             document.getElementById('sleepMenu').classList.toggle('show');
         }
@@ -948,16 +964,12 @@
             const sleepBtn = document.getElementById('sleepBtn');
             const sleepBadge = document.getElementById('sleepBadge');
             
-            if (sleepTimerId) {
-                clearTimeout(sleepTimerId);
-                sleepTimerId = null;
-            }
+            if (sleepTimerId) { clearTimeout(sleepTimerId); sleepTimerId = null; }
 
             if (minutes === 0) {
                 sleepBtn.classList.remove('active-sleep');
                 sleepBadge.style.display = 'none';
                 sleepBadge.textContent = '';
-                alert('تم إيقاف مؤقت النوم');
                 return;
             }
 
@@ -966,30 +978,20 @@
             sleepBadge.style.display = 'block';
             
             const ms = minutes * 60 * 1000;
-            
-            sleepTimerId = setTimeout(() => {
-                stopRadio();
-                alert('تم الإيقاف التام للراديو بناءً على مؤقت النوم');
-            }, ms);
-
-            alert(`سيتم إيقاف الراديو تلقائياً بعد ${minutes} دقيقة.`);
+            sleepTimerId = setTimeout(() => { stopRadio(); }, ms);
         }
 
-        // إغلاق قائمة المؤقت عند النقر خارجها
         window.addEventListener('click', function(e) {
             if (!document.querySelector('.sleep-timer-container').contains(e.target)) {
                 document.getElementById('sleepMenu').classList.remove('show');
             }
         });
 
-        // زر التصغير
+        // إظهار رسالة التنبيه (Toast) عند النقر على زر التصغير
         function minimizePlayer() {
-            const panel = document.getElementById('glassPanel');
-            panel.classList.toggle('minimized');
-            
-            if (panel.classList.contains('minimized')) {
-                alert('تم تصغير المشغل. يمكنك الآن الخروج إلى شاشة هاتفك الرئيسية، وسيستمر الراديو بالعمل في الخلفية.');
-            }
+            const toast = document.getElementById('toastMessage');
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
         audioPlayer.addEventListener('error', handleError);
