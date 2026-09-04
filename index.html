@@ -173,7 +173,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        /* الأزرار العلوية يمين (إيقاف - نوم - تصغير) */
+        /* الأزرار العلوية يمين */
         .top-actions {
             position: absolute;
             top: 25px;
@@ -198,6 +198,7 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             transition: all 0.2s;
+            position: relative;
         }
         .btn-top:active { transform: scale(0.9); }
         .btn-stop { color: #ff4d4d; }
@@ -205,6 +206,21 @@
 
         .sleep-timer-container {
             position: relative;
+        }
+
+        .sleep-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4d4d;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 900;
+            padding: 3px 6px;
+            border-radius: 50%;
+            display: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            font-family: Arial, sans-serif;
         }
 
         .sleep-menu {
@@ -357,7 +373,6 @@
         <i class="fa-solid fa-ellipsis-vertical"></i>
     </button>
 
-    <!-- الأزرار العلوية يمين (تم نقل الإيقاف وإضافة النوم والتصغير) -->
     <div class="top-actions">
         <!-- زر إيقاف تام -->
         <button class="btn-top btn-stop" onclick="stopRadio()" title="إيقاف تام للمحطة لتوفير البيانات">
@@ -369,10 +384,11 @@
             <i class="fas fa-window-minimize"></i>
         </button>
 
-        <!-- زر مؤقت النوم (Sleep Timer) -->
+        <!-- زر مؤقت النوم (Sleep Timer) مع ساعة الإيقاف -->
         <div class="sleep-timer-container">
             <button class="btn-top" onclick="toggleSleepMenu()" title="مؤقت النوم" id="sleepBtn">
-                <i class="fas fa-bed"></i>
+                <i class="fas fa-stopwatch"></i>
+                <span id="sleepBadge" class="sleep-badge"></span>
             </button>
             <div class="sleep-menu" id="sleepMenu">
                 <div onclick="setSleepTimer(0)">إيقاف المؤقت</div>
@@ -410,7 +426,7 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- تم الترتيب تماماً كما طلبت: الصوت، المحطة القادمة، البدء، المحطة السابقة، الشاشة -->
+            <!-- أزرار التحكم مرتبة حسب الطلب -->
             <div class="main-controls">
                 
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
@@ -881,6 +897,7 @@
                 clearTimeout(sleepTimerId);
                 sleepTimerId = null;
                 document.getElementById('sleepBtn').classList.remove('active-sleep');
+                document.getElementById('sleepBadge').style.display = 'none';
             }
         }
 
@@ -929,6 +946,7 @@
         function setSleepTimer(minutes) {
             document.getElementById('sleepMenu').classList.remove('show');
             const sleepBtn = document.getElementById('sleepBtn');
+            const sleepBadge = document.getElementById('sleepBadge');
             
             if (sleepTimerId) {
                 clearTimeout(sleepTimerId);
@@ -937,11 +955,16 @@
 
             if (minutes === 0) {
                 sleepBtn.classList.remove('active-sleep');
+                sleepBadge.style.display = 'none';
+                sleepBadge.textContent = '';
                 alert('تم إيقاف مؤقت النوم');
                 return;
             }
 
             sleepBtn.classList.add('active-sleep');
+            sleepBadge.textContent = minutes;
+            sleepBadge.style.display = 'block';
+            
             const ms = minutes * 60 * 1000;
             
             sleepTimerId = setTimeout(() => {
