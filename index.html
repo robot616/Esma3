@@ -82,7 +82,24 @@
             width: 90%;
             max-width: 400px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
         }
+
+        /* حالة التصغير */
+        .glass-panel.minimized {
+            padding: 15px;
+            width: 90%;
+            position: absolute;
+            bottom: 30px;
+            top: auto;
+            border-radius: 20px;
+            transform: scale(0.9);
+            background: rgba(15, 23, 30, 0.85);
+        }
+        .glass-panel.minimized .player-info h3 { font-size: 1.3rem; margin-bottom: 5px; }
+        .glass-panel.minimized .player-info p { font-size: 1rem; margin-bottom: 15px; }
+        .glass-panel.minimized .main-controls { gap: 15px; }
+        .glass-panel.minimized .btn-play-pause { width: 60px; height: 60px; font-size: 1.8rem; }
 
         .player-info h3 {
             font-size: 1.8rem;
@@ -103,7 +120,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         .btn-control {
@@ -130,11 +147,10 @@
             cursor: pointer;
             box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
         .btn-play-pause:active { transform: scale(0.95); }
 
-        .btn-stop { color: #ff4d4d; }
-        
         #errorMsg { color: #ff4d4d; margin-top: 15px; display: none; font-weight: bold; font-size: 0.9rem; }
 
         .mobile-menu-btn {
@@ -156,6 +172,67 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
+
+        /* الأزرار العلوية يمين (إيقاف - نوم - تصغير) */
+        .top-actions {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .btn-top {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 1.4rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        .btn-top:active { transform: scale(0.9); }
+        .btn-stop { color: #ff4d4d; }
+        .btn-top.active-sleep { color: #000; background: var(--primary); box-shadow: 0 0 15px var(--primary); }
+
+        .sleep-timer-container {
+            position: relative;
+        }
+
+        .sleep-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: rgba(15, 23, 30, 0.95);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            width: 150px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+        }
+        .sleep-menu.show { display: flex; }
+        .sleep-menu div {
+            padding: 12px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .sleep-menu div:hover { background: rgba(0, 242, 254, 0.2); }
+        .sleep-menu div:last-child { border-bottom: none; }
 
         .sidebar {
             position: fixed;
@@ -280,10 +357,38 @@
         <i class="fa-solid fa-ellipsis-vertical"></i>
     </button>
 
+    <!-- الأزرار العلوية يمين (تم نقل الإيقاف وإضافة النوم والتصغير) -->
+    <div class="top-actions">
+        <!-- زر إيقاف تام -->
+        <button class="btn-top btn-stop" onclick="stopRadio()" title="إيقاف تام للمحطة لتوفير البيانات">
+            <i class="fas fa-power-off"></i>
+        </button>
+        
+        <!-- زر التصغير للعمل بالخلفية -->
+        <button class="btn-top" onclick="minimizePlayer()" title="تصغير للعمل بالخلفية">
+            <i class="fas fa-window-minimize"></i>
+        </button>
+
+        <!-- زر مؤقت النوم (Sleep Timer) -->
+        <div class="sleep-timer-container">
+            <button class="btn-top" onclick="toggleSleepMenu()" title="مؤقت النوم" id="sleepBtn">
+                <i class="fas fa-bed"></i>
+            </button>
+            <div class="sleep-menu" id="sleepMenu">
+                <div onclick="setSleepTimer(0)">إيقاف المؤقت</div>
+                <div onclick="setSleepTimer(30)">30 دقيقة</div>
+                <div onclick="setSleepTimer(60)">ساعة</div>
+                <div onclick="setSleepTimer(90)">ساعة ونصف</div>
+                <div onclick="setSleepTimer(120)">ساعتين</div>
+                <div onclick="setSleepTimer(150)">ساعتين ونصف</div>
+                <div onclick="setSleepTimer(180)">3 ساعات</div>
+            </div>
+        </div>
+    </div>
+
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <aside class="sidebar" id="sidebar">
-        
         <div class="dropdown-container">
             <button class="close-sidebar" onclick="closeSidebar()">
                 <i class="fas fa-times"></i>
@@ -292,36 +397,42 @@
             <select id="categorySelect" class="category-dropdown" onchange="handleCategoryChange()">
             </select>
         </div>
-        
         <div class="stations-container" id="stationsContainer"></div>
     </aside>
 
     <main class="main-player" id="mainBg">
         <div class="overlay-bg"></div>
         
-        <div class="glass-panel">
+        <div class="glass-panel" id="glassPanel">
             <div class="player-info">
                 <h3 id="mainStationName">Esma3 Fm</h3>
                 <p id="mainStatusText">اختر إذاعة للبدء</p>
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
+            <!-- تم الترتيب تماماً كما طلبت: الصوت، المحطة القادمة، البدء، المحطة السابقة، الشاشة -->
             <div class="main-controls">
-                <button class="btn-control btn-stop" onclick="stopRadio()" title="إيقاف تام">
-                    <i class="fas fa-power-off"></i>
-                </button>
-                
-                <button class="btn-play-pause" id="playPauseBtn" onclick="togglePlay()">
-                    <i id="playIcon" class="fas fa-play"></i>
-                </button>
                 
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
 
+                <button class="btn-control" onclick="playNextStation()" title="المحطة القادمة">
+                    <i class="fas fa-forward-step"></i>
+                </button>
+
+                <button class="btn-play-pause" id="playPauseBtn" onclick="togglePlay()">
+                    <i id="playIcon" class="fas fa-play"></i>
+                </button>
+
+                <button class="btn-control" onclick="playPrevStation()" title="المحطة السابقة">
+                    <i class="fas fa-backward-step"></i>
+                </button>
+
                 <button class="btn-control" onclick="toggleFullScreen()" title="ملء الشاشة">
                     <i id="expandIcon" class="fas fa-expand"></i>
                 </button>
+                
             </div>
         </div>
 
@@ -594,6 +705,13 @@
         let currentPlayingCard = null;
         let hlsInstance = null; 
 
+        // متغيرات للتعقب والتنقل
+        let currentCategory = 'القرآن الكريم';
+        let currentStationIndex = -1;
+
+        // متغيرات مؤقت النوم
+        let sleepTimerId = null;
+
         function initDropdown() {
             Object.keys(radioData).forEach((categoryName) => {
                 const option = document.createElement('option');
@@ -610,14 +728,19 @@
         }
 
         function loadCategory(categoryName) {
+            currentCategory = categoryName;
+            currentStationIndex = -1;
             stationsContainer.innerHTML = '';
 
             const stations = radioData[categoryName];
-            stations.forEach(station => {
+            stations.forEach((station, index) => {
                 const card = document.createElement('div');
                 card.className = 'station-card';
                 card.innerHTML = `<h3>${station.name}</h3> <i class="fas fa-play play-icon"></i>`;
-                card.onclick = () => playStation(station, card);
+                card.onclick = () => {
+                    currentStationIndex = index;
+                    playStation(station, card);
+                };
                 stationsContainer.appendChild(card);
             });
         }
@@ -702,6 +825,40 @@
             }
         }
 
+        // تشغيل المحطة القادمة
+        function playNextStation() {
+            const stations = radioData[currentCategory];
+            if (!stations) return;
+            
+            let nextIndex = currentStationIndex + 1;
+            if (nextIndex >= stations.length) nextIndex = 0;
+            
+            const cards = document.querySelectorAll('.station-card');
+            if (cards[nextIndex]) {
+                currentStationIndex = nextIndex;
+                cards[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                playStation(stations[nextIndex], cards[nextIndex]);
+            }
+        }
+
+        // تشغيل المحطة السابقة
+        function playPrevStation() {
+            const stations = radioData[currentCategory];
+            if (!stations) return;
+            
+            let prevIndex = currentStationIndex - 1;
+            if (prevIndex < 0) prevIndex = stations.length - 1;
+            if (currentStationIndex === -1) prevIndex = stations.length - 1;
+            
+            const cards = document.querySelectorAll('.station-card');
+            if (cards[prevIndex]) {
+                currentStationIndex = prevIndex;
+                cards[prevIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                playStation(stations[prevIndex], cards[prevIndex]);
+            }
+        }
+
+        // الإيقاف التام للراديو
         function stopRadio() {
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             audioPlayer.pause();
@@ -717,6 +874,13 @@
                 currentPlayingCard.classList.remove('playing');
                 currentPlayingCard.querySelector('.play-icon').className = 'fas fa-play play-icon';
                 currentPlayingCard = null;
+            }
+
+            // إيقاف مؤقت النوم إن وجد
+            if (sleepTimerId) {
+                clearTimeout(sleepTimerId);
+                sleepTimerId = null;
+                document.getElementById('sleepBtn').classList.remove('active-sleep');
             }
         }
 
@@ -756,6 +920,54 @@
                 expandIcon.className = 'fas fa-compress';
             }
         });
+
+        // دوال مؤقت النوم (Sleep Timer)
+        function toggleSleepMenu() {
+            document.getElementById('sleepMenu').classList.toggle('show');
+        }
+
+        function setSleepTimer(minutes) {
+            document.getElementById('sleepMenu').classList.remove('show');
+            const sleepBtn = document.getElementById('sleepBtn');
+            
+            if (sleepTimerId) {
+                clearTimeout(sleepTimerId);
+                sleepTimerId = null;
+            }
+
+            if (minutes === 0) {
+                sleepBtn.classList.remove('active-sleep');
+                alert('تم إيقاف مؤقت النوم');
+                return;
+            }
+
+            sleepBtn.classList.add('active-sleep');
+            const ms = minutes * 60 * 1000;
+            
+            sleepTimerId = setTimeout(() => {
+                stopRadio();
+                alert('تم الإيقاف التام للراديو بناءً على مؤقت النوم');
+            }, ms);
+
+            alert(`سيتم إيقاف الراديو تلقائياً بعد ${minutes} دقيقة.`);
+        }
+
+        // إغلاق قائمة المؤقت عند النقر خارجها
+        window.addEventListener('click', function(e) {
+            if (!document.querySelector('.sleep-timer-container').contains(e.target)) {
+                document.getElementById('sleepMenu').classList.remove('show');
+            }
+        });
+
+        // زر التصغير
+        function minimizePlayer() {
+            const panel = document.getElementById('glassPanel');
+            panel.classList.toggle('minimized');
+            
+            if (panel.classList.contains('minimized')) {
+                alert('تم تصغير المشغل. يمكنك الآن الخروج إلى شاشة هاتفك الرئيسية، وسيستمر الراديو بالعمل في الخلفية.');
+            }
+        }
 
         audioPlayer.addEventListener('error', handleError);
         window.onload = initDropdown;
