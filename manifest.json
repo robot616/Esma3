@@ -3,8 +3,8 @@
   "short_name": "Esma3 Fm",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#B96817",
-  "theme_color": "#B96817",
+  "background_color": "#111820",
+  "theme_color": "#111820",
   "icons": [
     {
       "src": "https://i.postimg.cc/Ss6GkB01/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.png",
