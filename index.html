@@ -88,12 +88,21 @@
         .player-info h3 {
             font-size: 1.8rem;
             color: #ffffff;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             text-shadow: 0 4px 10px rgba(0,0,0,0.5);
             font-weight: 700;
         }
 
-        .player-info p {
+        .player-info .episode-name {
+            color: #ccc;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            font-weight: normal;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .player-info p.status-text {
             color: var(--primary);
             font-size: 1.1rem;
             margin-bottom: 30px;
@@ -379,6 +388,9 @@
 </head>
 <body>
 
+    <!-- استدعاء ملف البودكاست هنا -->
+    <script src="podcasts.js"></script>
+
     <button class="mobile-menu-btn" onclick="openSidebar()">
         <i class="fa-solid fa-bars-staggered"></i>
     </button>
@@ -429,7 +441,9 @@
         <div class="glass-panel" id="glassPanel">
             <div class="player-info">
                 <h3 id="mainStationName">Esma3 Fm</h3>
-                <p id="mainStatusText">اختر إذاعة للبدء</p>
+                <!-- تمت إضافة هذا العنصر لعرض اسم حلقة البودكاست -->
+                <p id="episodeName" class="episode-name"></p>
+                <p id="mainStatusText" class="status-text">اختر إذاعة للبدء</p>
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
@@ -438,7 +452,7 @@
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
 
-                <button class="btn-control" onclick="playNextStation()" title="المحطة القادمة">
+                <button class="btn-control" onclick="playNextStation()" title="المحطة/الحلقة القادمة">
                     <i class="fas fa-forward-step"></i>
                 </button>
 
@@ -446,7 +460,7 @@
                     <i id="playIcon" class="fas fa-play"></i>
                 </button>
 
-                <button class="btn-control" onclick="playPrevStation()" title="المحطة السابقة">
+                <button class="btn-control" onclick="playPrevStation()" title="المحطة/الحلقة السابقة">
                     <i class="fas fa-backward-step"></i>
                 </button>
 
@@ -668,6 +682,8 @@
                 { name: "محمد محيي", url: "https://stream-170.zeno.fm/gql4tcwrrxgtv" },
             ],
             "ثقافة ودراما": [
+                // تمت إضافة البودكاست هنا كأول إذاعة في القسم
+                { name: "رحلة في الذاكرة" },
                 { name: "راديو طبيب", url: "https://stream-174.zeno.fm/z6exeh5qc0hvv" },
                 { name: "مصطفى محمود", url: "https://stream-173.zeno.fm/t3azszm0pnhvv" },
                 { name: "أحمد خالد توفيق", url: "https://stream-179.zeno.fm/qbkzrtpwsgquv" },
@@ -690,6 +706,7 @@
         const stationsContainer = document.getElementById('stationsContainer');
         const audioPlayer = document.getElementById('audioPlayer');
         const mainStationName = document.getElementById('mainStationName');
+        const episodeNameEl = document.getElementById('episodeName');
         const mainStatusText = document.getElementById('mainStatusText');
         const playIcon = document.getElementById('playIcon');
         const errorMsg = document.getElementById('errorMsg');
@@ -702,6 +719,9 @@
         let currentCategory = 'القرآن الكريم';
         let currentStationIndex = -1;
         let sleepTimerId = null;
+        
+        // متغير للتحقق مما إذا كان البودكاست هو الذي يعمل الآن
+        let isPodcastPlaying = false;
 
         // إعداد Media Session API
         function setupMediaSession() {
@@ -714,12 +734,12 @@
             }
         }
 
-        // إرسال البيانات للمشغل الخارجي
-        function updateMediaSessionMetadata(stationName) {
+        // إرسال البيانات للمشغل الخارجي (عنوان الحلقة واسم المحطة)
+        function updateMediaSessionMetadata(title, artist = 'Esma3 Fm') {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: stationName,
-                    artist: 'Esma3 Fm',
+                    title: title,
+                    artist: artist,
                     album: 'البث المباشر',
                     artwork: [
                         { src: 'https://i.postimg.cc/Ss6GkB01/pngtree-realistic-3d-rendering-of-a-vintage-concert-or-radio-microphone-image-3816207.png', sizes: '192x192', type: 'image/png' },
@@ -776,6 +796,27 @@
         function playStation(station, cardElement) {
             errorMsg.style.display = 'none';
             mainStatusText.textContent = "جاري الاتصال...";
+            
+            let targetUrl = station.url;
+
+            // التحقق مما إذا كانت المحطة المختارة هي البودكاست
+            if (station.name === "رحلة في الذاكرة") {
+                if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
+                    const randomEp = memoryJourneyEpisodes[Math.floor(Math.random() * memoryJourneyEpisodes.length)];
+                    targetUrl = randomEp.url;
+                    episodeNameEl.textContent = randomEp.name;
+                    episodeNameEl.style.display = 'block';
+                    isPodcastPlaying = true;
+                } else {
+                    handleError();
+                    return;
+                }
+            } else {
+                episodeNameEl.style.display = 'none';
+                isPodcastPlaying = false;
+            }
+
+            mainStationName.textContent = station.name;
 
             document.querySelectorAll('.station-card').forEach(c => {
                 c.classList.remove('playing');
@@ -786,16 +827,15 @@
             cardElement.querySelector('.play-icon').className = 'fas fa-music play-icon'; 
             currentPlayingCard = cardElement;
             
-            mainStationName.textContent = station.name;
             playIcon.className = 'fas fa-spinner fa-spin'; 
 
             closeSidebar();
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
 
-            if ((station.url.includes('.m3u8') || station.url.includes('.ts')) && Hls.isSupported()) {
+            if (targetUrl && (targetUrl.includes('.m3u8') || targetUrl.includes('.ts')) && Hls.isSupported()) {
                 hlsInstance = new Hls({ enableWorker: true, lowLatencyMode: true });
-                hlsInstance.loadSource(station.url);
+                hlsInstance.loadSource(targetUrl);
                 hlsInstance.attachMedia(audioPlayer);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
                     audioPlayer.play().then(onPlaySuccess).catch(handleError);
@@ -807,19 +847,27 @@
                         else handleError();
                     }
                 });
-            } else {
-                audioPlayer.src = station.url;
+            } else if (targetUrl) {
+                audioPlayer.src = targetUrl;
                 audioPlayer.play().then(onPlaySuccess).catch(handleError);
             }
         }
 
-        // تم نقل إرسال البيانات للمشغل هنا لتتزامن مع بداية الصوت الفعلي
         function onPlaySuccess() {
             playIcon.className = 'fas fa-pause';
             mainStatusText.textContent = "يتم التشغيل الآن";
             errorMsg.style.display = 'none';
             
-            updateMediaSessionMetadata(mainStationName.textContent);
+            // تحديد العنوان الذي سيظهر في مشغل الموبايل الخارجي
+            let metaTitle = mainStationName.textContent;
+            let metaArtist = 'Esma3 Fm';
+            
+            if (isPodcastPlaying) {
+                metaTitle = episodeNameEl.textContent;
+                metaArtist = mainStationName.textContent;
+            }
+            
+            updateMediaSessionMetadata(metaTitle, metaArtist);
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         }
 
@@ -851,6 +899,14 @@
         }
 
         function playNextStation() {
+            // إذا كان البودكاست شغال، زر "التالي" يسحب حلقة عشوائية جديدة
+            if (isPodcastPlaying && currentStationIndex !== -1) {
+                const station = radioData[currentCategory][currentStationIndex];
+                const cards = document.querySelectorAll('.station-card');
+                playStation(station, cards[currentStationIndex]);
+                return;
+            }
+
             const stations = radioData[currentCategory];
             if (!stations) return;
             let nextIndex = currentStationIndex + 1;
@@ -864,6 +920,14 @@
         }
 
         function playPrevStation() {
+            // إذا كان البودكاست شغال، زر "السابق" يسحب حلقة عشوائية جديدة أيضاً لسهولة الاستخدام
+            if (isPodcastPlaying && currentStationIndex !== -1) {
+                const station = radioData[currentCategory][currentStationIndex];
+                const cards = document.querySelectorAll('.station-card');
+                playStation(station, cards[currentStationIndex]);
+                return;
+            }
+
             const stations = radioData[currentCategory];
             if (!stations) return;
             let prevIndex = currentStationIndex - 1;
@@ -885,6 +949,9 @@
 
             playIcon.className = 'fas fa-play';
             mainStationName.textContent = 'Esma3 Fm';
+            episodeNameEl.style.display = 'none';
+            isPodcastPlaying = false;
+            
             mainStatusText.textContent = 'تم إيقاف التشغيل (توفير البيانات)';
             errorMsg.style.display = 'none';
 
@@ -965,6 +1032,13 @@
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
+
+        // تشغيل تلقائي للحلقة التالية من البودكاست عند انتهاء الحلقة الحالية
+        audioPlayer.addEventListener('ended', function() {
+            if (isPodcastPlaying) {
+                playNextStation(); // سيقوم تلقائياً بسحب حلقة جديدة
+            }
+        });
 
         audioPlayer.addEventListener('error', handleError);
         window.onload = initDropdown;
