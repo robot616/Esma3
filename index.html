@@ -388,7 +388,7 @@
 </head>
 <body>
 
-    <!-- استدعاء ملف البودكاست هنا -->
+    <!-- استدعاء ملف البودكاست -->
     <script src="podcasts.js"></script>
 
     <button class="mobile-menu-btn" onclick="openSidebar()">
@@ -441,18 +441,18 @@
         <div class="glass-panel" id="glassPanel">
             <div class="player-info">
                 <h3 id="mainStationName">Esma3 Fm</h3>
-                <!-- تمت إضافة هذا العنصر لعرض اسم حلقة البودكاست -->
                 <p id="episodeName" class="episode-name"></p>
                 <p id="mainStatusText" class="status-text">اختر إذاعة للبدء</p>
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
+            <!-- تم تبديل أماكن زر السابق والتالي في الواجهة هنا -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
 
-                <button class="btn-control" onclick="playNextStation()" title="المحطة/الحلقة القادمة">
+                <button class="btn-control" onclick="onPrevButtonClicked()" title="المحطة/الحلقة السابقة">
                     <i class="fas fa-forward-step"></i>
                 </button>
 
@@ -460,7 +460,7 @@
                     <i id="playIcon" class="fas fa-play"></i>
                 </button>
 
-                <button class="btn-control" onclick="playPrevStation()" title="المحطة/الحلقة السابقة">
+                <button class="btn-control" onclick="onNextButtonClicked()" title="المحطة/الحلقة القادمة">
                     <i class="fas fa-backward-step"></i>
                 </button>
 
@@ -470,11 +470,10 @@
             </div>
         </div>
 
-        <!-- إضافة playsinline لدعم التشغيل الاحترافي على الموبايلات -->
         <audio id="audioPlayer" preload="none" playsinline></audio>
     </main>
 
-    <div id="toastMessage" class="toast-msg">الراديو يدعم التشغيل في الخلفية، فقط اضغط على زر الرئيسية في هاتفك وسيستمر الصوت.</div>
+    <div id="toastMessage" class="toast-msg"></div>
 
     <script>
         const radioData = {
@@ -682,7 +681,6 @@
                 { name: "محمد محيي", url: "https://stream-170.zeno.fm/gql4tcwrrxgtv" },
             ],
             "ثقافة ودراما": [
-                // تمت إضافة البودكاست هنا كأول إذاعة في القسم
                 { name: "رحلة في الذاكرة" },
                 { name: "راديو طبيب", url: "https://stream-174.zeno.fm/z6exeh5qc0hvv" },
                 { name: "مصطفى محمود", url: "https://stream-173.zeno.fm/t3azszm0pnhvv" },
@@ -720,21 +718,34 @@
         let currentStationIndex = -1;
         let sleepTimerId = null;
         
-        // متغير للتحقق مما إذا كان البودكاست هو الذي يعمل الآن
+        // متغيرات للتعامل مع حلقات البودكاست
         let isPodcastPlaying = false;
+        let podcastHistory = [];
+        let currentPodcastHistoryIndex = -1;
+
+        // متغيرات للتحكم في النقرة المزدوجة
+        let nextClickTimeout = null;
+        let prevClickTimeout = null;
+
+        // دالة لإظهار رسائل التنبيه بشكل ديناميكي
+        function showToast(msg) {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
 
         // إعداد Media Session API
         function setupMediaSession() {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', togglePlay);
                 navigator.mediaSession.setActionHandler('pause', togglePlay);
-                navigator.mediaSession.setActionHandler('previoustrack', playPrevStation);
-                navigator.mediaSession.setActionHandler('nexttrack', playNextStation);
+                navigator.mediaSession.setActionHandler('previoustrack', onPrevButtonClicked);
+                navigator.mediaSession.setActionHandler('nexttrack', onNextButtonClicked);
                 navigator.mediaSession.setActionHandler('stop', stopRadio);
             }
         }
 
-        // إرسال البيانات للمشغل الخارجي (عنوان الحلقة واسم المحطة)
         function updateMediaSessionMetadata(title, artist = 'Esma3 Fm') {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -793,20 +804,29 @@
             sidebarOverlay.classList.remove('show');
         }
 
-        function playStation(station, cardElement) {
+        // إضافة parameter خاص بتحديد حلقة معينة من السجل
+        function playStation(station, cardElement, specificEpisode = null) {
             errorMsg.style.display = 'none';
             mainStatusText.textContent = "جاري الاتصال...";
             
             let targetUrl = station.url;
 
-            // التحقق مما إذا كانت المحطة المختارة هي البودكاست
             if (station.name === "رحلة في الذاكرة") {
-                if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
+                if (specificEpisode) {
+                    targetUrl = specificEpisode.url;
+                    episodeNameEl.textContent = specificEpisode.name;
+                    episodeNameEl.style.display = 'block';
+                    isPodcastPlaying = true;
+                } else if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
                     const randomEp = memoryJourneyEpisodes[Math.floor(Math.random() * memoryJourneyEpisodes.length)];
                     targetUrl = randomEp.url;
                     episodeNameEl.textContent = randomEp.name;
                     episodeNameEl.style.display = 'block';
                     isPodcastPlaying = true;
+                    
+                    // إعادة تعيين السجل عند الضغط مباشرة من القائمة أو بدء الإذاعة من جديد
+                    podcastHistory = [randomEp];
+                    currentPodcastHistoryIndex = 0;
                 } else {
                     handleError();
                     return;
@@ -858,7 +878,6 @@
             mainStatusText.textContent = "يتم التشغيل الآن";
             errorMsg.style.display = 'none';
             
-            // تحديد العنوان الذي سيظهر في مشغل الموبايل الخارجي
             let metaTitle = mainStationName.textContent;
             let metaArtist = 'Esma3 Fm';
             
@@ -898,15 +917,76 @@
             }
         }
 
-        function playNextStation() {
-            // إذا كان البودكاست شغال، زر "التالي" يسحب حلقة عشوائية جديدة
-            if (isPodcastPlaying && currentStationIndex !== -1) {
-                const station = radioData[currentCategory][currentStationIndex];
-                const cards = document.querySelectorAll('.station-card');
-                playStation(station, cards[currentStationIndex]);
-                return;
+        // --- التحكم في زر المحطة/الحلقة القادمة (النقرة الواحدة أو المزدوجة) ---
+        function onNextButtonClicked() {
+            if (nextClickTimeout) {
+                clearTimeout(nextClickTimeout);
+                nextClickTimeout = null;
+                // نقرة مزدوجة: يتجاهل البودكاست وينتقل للإذاعة التالية في القائمة
+                playNextStationCategory();
+            } else {
+                nextClickTimeout = setTimeout(() => {
+                    nextClickTimeout = null;
+                    // نقرة واحدة
+                    if (isPodcastPlaying) {
+                        playNextPodcastEpisode();
+                    } else {
+                        playNextStationCategory();
+                    }
+                }, 300);
             }
+        }
 
+        // --- التحكم في زر المحطة/الحلقة السابقة (النقرة الواحدة أو المزدوجة) ---
+        function onPrevButtonClicked() {
+            if (prevClickTimeout) {
+                clearTimeout(prevClickTimeout);
+                prevClickTimeout = null;
+                // نقرة مزدوجة: يتجاهل البودكاست وينتقل للإذاعة السابقة في القائمة
+                playPrevStationCategory();
+            } else {
+                prevClickTimeout = setTimeout(() => {
+                    prevClickTimeout = null;
+                    // نقرة واحدة
+                    if (isPodcastPlaying) {
+                        playPrevPodcastEpisode();
+                    } else {
+                        playPrevStationCategory();
+                    }
+                }, 300);
+            }
+        }
+
+        // --- وظائف التنقل في سجل البودكاست ---
+        function playNextPodcastEpisode() {
+            // إذا كنا قد عدنا للخلف في السجل، نقوم بالتقدم خطوة للأمام
+            if (currentPodcastHistoryIndex < podcastHistory.length - 1) {
+                currentPodcastHistoryIndex++;
+                const ep = podcastHistory[currentPodcastHistoryIndex];
+                playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], ep);
+            } else {
+                // إذا كنا في نهاية السجل، نسحب حلقة عشوائية جديدة
+                const randomEp = memoryJourneyEpisodes[Math.floor(Math.random() * memoryJourneyEpisodes.length)];
+                podcastHistory.push(randomEp);
+                currentPodcastHistoryIndex = podcastHistory.length - 1;
+                playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], randomEp);
+            }
+        }
+
+        function playPrevPodcastEpisode() {
+            if (currentPodcastHistoryIndex > 0) {
+                // العودة للحلقة السابقة في السجل
+                currentPodcastHistoryIndex--;
+                const ep = podcastHistory[currentPodcastHistoryIndex];
+                playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], ep);
+            } else {
+                // لا يوجد سجل سابق لهذه الجلسة
+                showToast("لا توجد حلقات سابقة في السجل للرجوع إليها");
+            }
+        }
+
+        // --- وظائف التنقل بين الإذاعات الطبيعية في القائمة ---
+        function playNextStationCategory() {
             const stations = radioData[currentCategory];
             if (!stations) return;
             let nextIndex = currentStationIndex + 1;
@@ -919,15 +999,7 @@
             }
         }
 
-        function playPrevStation() {
-            // إذا كان البودكاست شغال، زر "السابق" يسحب حلقة عشوائية جديدة أيضاً لسهولة الاستخدام
-            if (isPodcastPlaying && currentStationIndex !== -1) {
-                const station = radioData[currentCategory][currentStationIndex];
-                const cards = document.querySelectorAll('.station-card');
-                playStation(station, cards[currentStationIndex]);
-                return;
-            }
-
+        function playPrevStationCategory() {
             const stations = radioData[currentCategory];
             if (!stations) return;
             let prevIndex = currentStationIndex - 1;
@@ -1028,15 +1100,15 @@
         });
 
         function minimizePlayer() {
-            const toast = document.getElementById('toastMessage');
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            showToast("الراديو يدعم التشغيل في الخلفية، فقط اضغط على زر الرئيسية في هاتفك وسيستمر الصوت.");
         }
 
-        // تشغيل تلقائي للحلقة التالية من البودكاست عند انتهاء الحلقة الحالية
+        // تشغيل تلقائي للحلقة التالية من البودكاست (أو الإذاعة التالية) عند انتهاء المسار
         audioPlayer.addEventListener('ended', function() {
             if (isPodcastPlaying) {
-                playNextStation(); // سيقوم تلقائياً بسحب حلقة جديدة
+                playNextPodcastEpisode();
+            } else {
+                playNextStationCategory();
             }
         });
 
