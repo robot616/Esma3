@@ -446,22 +446,22 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- تم تبديل أماكن زر السابق والتالي في الواجهة هنا -->
+            <!-- تم تبديل أماكن زر السابق والتالي في الواجهة هنا بناءً على طلبك الأخير -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
 
-                <button class="btn-control" onclick="onPrevButtonClicked()" title="المحطة/الحلقة السابقة">
-                    <i class="fas fa-forward-step"></i>
+                <button class="btn-control" onclick="onNextButtonClicked()" title="المحطة/الحلقة القادمة">
+                    <i class="fas fa-backward-step"></i>
                 </button>
 
                 <button class="btn-play-pause" id="playPauseBtn" onclick="togglePlay()">
                     <i id="playIcon" class="fas fa-play"></i>
                 </button>
 
-                <button class="btn-control" onclick="onNextButtonClicked()" title="المحطة/الحلقة القادمة">
-                    <i class="fas fa-backward-step"></i>
+                <button class="btn-control" onclick="onPrevButtonClicked()" title="المحطة/الحلقة السابقة">
+                    <i class="fas fa-forward-step"></i>
                 </button>
 
                 <button class="btn-control" onclick="toggleFullScreen()" title="ملء الشاشة">
@@ -718,16 +718,13 @@
         let currentStationIndex = -1;
         let sleepTimerId = null;
         
-        // متغيرات للتعامل مع حلقات البودكاست
         let isPodcastPlaying = false;
         let podcastHistory = [];
         let currentPodcastHistoryIndex = -1;
 
-        // متغيرات للتحكم في النقرة المزدوجة
         let nextClickTimeout = null;
         let prevClickTimeout = null;
 
-        // دالة لإظهار رسائل التنبيه بشكل ديناميكي
         function showToast(msg) {
             const toast = document.getElementById('toastMessage');
             toast.textContent = msg;
@@ -735,7 +732,6 @@
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
-        // إعداد Media Session API
         function setupMediaSession() {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', togglePlay);
@@ -804,7 +800,6 @@
             sidebarOverlay.classList.remove('show');
         }
 
-        // إضافة parameter خاص بتحديد حلقة معينة من السجل
         function playStation(station, cardElement, specificEpisode = null) {
             errorMsg.style.display = 'none';
             mainStatusText.textContent = "جاري الاتصال...";
@@ -824,7 +819,6 @@
                     episodeNameEl.style.display = 'block';
                     isPodcastPlaying = true;
                     
-                    // إعادة تعيين السجل عند الضغط مباشرة من القائمة أو بدء الإذاعة من جديد
                     podcastHistory = [randomEp];
                     currentPodcastHistoryIndex = 0;
                 } else {
@@ -917,17 +911,14 @@
             }
         }
 
-        // --- التحكم في زر المحطة/الحلقة القادمة (النقرة الواحدة أو المزدوجة) ---
         function onNextButtonClicked() {
             if (nextClickTimeout) {
                 clearTimeout(nextClickTimeout);
                 nextClickTimeout = null;
-                // نقرة مزدوجة: يتجاهل البودكاست وينتقل للإذاعة التالية في القائمة
                 playNextStationCategory();
             } else {
                 nextClickTimeout = setTimeout(() => {
                     nextClickTimeout = null;
-                    // نقرة واحدة
                     if (isPodcastPlaying) {
                         playNextPodcastEpisode();
                     } else {
@@ -937,17 +928,14 @@
             }
         }
 
-        // --- التحكم في زر المحطة/الحلقة السابقة (النقرة الواحدة أو المزدوجة) ---
         function onPrevButtonClicked() {
             if (prevClickTimeout) {
                 clearTimeout(prevClickTimeout);
                 prevClickTimeout = null;
-                // نقرة مزدوجة: يتجاهل البودكاست وينتقل للإذاعة السابقة في القائمة
                 playPrevStationCategory();
             } else {
                 prevClickTimeout = setTimeout(() => {
                     prevClickTimeout = null;
-                    // نقرة واحدة
                     if (isPodcastPlaying) {
                         playPrevPodcastEpisode();
                     } else {
@@ -957,15 +945,12 @@
             }
         }
 
-        // --- وظائف التنقل في سجل البودكاست ---
         function playNextPodcastEpisode() {
-            // إذا كنا قد عدنا للخلف في السجل، نقوم بالتقدم خطوة للأمام
             if (currentPodcastHistoryIndex < podcastHistory.length - 1) {
                 currentPodcastHistoryIndex++;
                 const ep = podcastHistory[currentPodcastHistoryIndex];
                 playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], ep);
             } else {
-                // إذا كنا في نهاية السجل، نسحب حلقة عشوائية جديدة
                 const randomEp = memoryJourneyEpisodes[Math.floor(Math.random() * memoryJourneyEpisodes.length)];
                 podcastHistory.push(randomEp);
                 currentPodcastHistoryIndex = podcastHistory.length - 1;
@@ -975,17 +960,14 @@
 
         function playPrevPodcastEpisode() {
             if (currentPodcastHistoryIndex > 0) {
-                // العودة للحلقة السابقة في السجل
                 currentPodcastHistoryIndex--;
                 const ep = podcastHistory[currentPodcastHistoryIndex];
                 playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], ep);
             } else {
-                // لا يوجد سجل سابق لهذه الجلسة
                 showToast("لا توجد حلقات سابقة في السجل للرجوع إليها");
             }
         }
 
-        // --- وظائف التنقل بين الإذاعات الطبيعية في القائمة ---
         function playNextStationCategory() {
             const stations = radioData[currentCategory];
             if (!stations) return;
@@ -1103,7 +1085,6 @@
             showToast("الراديو يدعم التشغيل في الخلفية، فقط اضغط على زر الرئيسية في هاتفك وسيستمر الصوت.");
         }
 
-        // تشغيل تلقائي للحلقة التالية من البودكاست (أو الإذاعة التالية) عند انتهاء المسار
         audioPlayer.addEventListener('ended', function() {
             if (isPodcastPlaying) {
                 playNextPodcastEpisode();
