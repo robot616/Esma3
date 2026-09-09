@@ -446,13 +446,12 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- أزرار التحكم -->
+            <!-- تم تبديل أماكن زر السابق والتالي في الواجهة هنا بناءً على طلبك الأخير -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
 
-                <!-- زر المحطة القادمة -->
                 <button class="btn-control" onclick="onNextButtonClicked()" title="المحطة/الحلقة القادمة">
                     <i class="fas fa-forward-step"></i>
                 </button>
@@ -461,7 +460,6 @@
                     <i id="playIcon" class="fas fa-play"></i>
                 </button>
 
-                <!-- زر المحطة السابقة -->
                 <button class="btn-control" onclick="onPrevButtonClicked()" title="المحطة/الحلقة السابقة">
                     <i class="fas fa-backward-step"></i>
                 </button>
@@ -673,7 +671,7 @@
                 { name: "دياب إف إم", url: "https://stream.zeno.fm/rf64mx02qa0uv" },
                 { name: "عمرو دياب إف إم", url: "https://stream-153.zeno.fm/xa4yhh4k838uv" },
                 { name: "راديو دياب", url: "https://stream-172.zeno.fm/9t15vs7bkfhvv" },
-                { name: "راديو إليسا", url: "https://stream-zeno.fm/v7n499m8ckhvv" },
+                { name: "راديو إليسا", url: "https://stream.zeno.fm/v7n499m8ckhvv" },
                 { name: "محمد محيي", url: "https://stream-170.zeno.fm/gql4tcwrrxgtv" },
             ],
             "ثقافة ودراما": [
@@ -708,6 +706,10 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
 
+        // ================== إضافة متغير الهروب من الـ Not Secure ==================
+        let isPageTainted = false;
+        // =======================================================================
+
         let currentPlayingCard = null;
         let hlsInstance = null; 
         let currentCategory = 'القرآن الكريم';
@@ -720,10 +722,6 @@
 
         let nextClickTimeout = null;
         let prevClickTimeout = null;
-        let errorTimeout = null; 
-        
-        // المتغير السحري لإلغاء أي إيرور قديم
-        let currentPlayRequest = 0;
 
         function showToast(msg) {
             const toast = document.getElementById('toastMessage');
@@ -801,24 +799,40 @@
         }
 
         function playStation(station, cardElement, specificEpisode = null) {
-            // تحديث رقم الطلب لقتل أي رسائل قديمة متأخرة
-            currentPlayRequest++;
-            let myRequest = currentPlayRequest;
+            // ================== إضافة الهروب من الـ Not Secure ==================
+            let checkUrl = station.url;
+            let tempEpisode = specificEpisode;
+            
+            if (station.name === "رحلة في الذاكرة" && !tempEpisode) {
+                if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
+                    checkUrl = memoryJourneyEpisodes[0].url; 
+                }
+            }
+            if (tempEpisode) checkUrl = tempEpisode.url;
 
-            if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; } 
+            if (isPageTainted && !window.isRecoveringState) {
+                localStorage.setItem('esma3_mob_cat', currentCategory);
+                localStorage.setItem('esma3_mob_idx', currentStationIndex);
+                
+                localStorage.setItem('esma3_mob_hist', JSON.stringify(podcastHistory));
+                localStorage.setItem('esma3_mob_hist_idx', currentPodcastHistoryIndex);
+                if (tempEpisode) localStorage.setItem('esma3_mob_ep', JSON.stringify(tempEpisode));
+                else localStorage.removeItem('esma3_mob_ep');
+                
+                localStorage.setItem('esma3_mob_triggerPlay', '1');
+                
+                window.location.reload();
+                return;
+            }
+
+            window.isRecoveringState = false;
+
+            if (checkUrl && checkUrl.startsWith('http://')) {
+                isPageTainted = true;
+            }
+            // ===================================================================
+
             errorMsg.style.display = 'none';
-
-            // مسح المصدر القديم فوراً لتنظيف المشغل
-            audioPlayer.pause();
-            audioPlayer.removeAttribute('src');
-            audioPlayer.load();
-
-            // إعادة ربط الإيرور بالطلب الحالي فقط
-            audioPlayer.onerror = function(e) {
-                if (myRequest !== currentPlayRequest) return;
-                handleError(e);
-            };
-
             mainStatusText.textContent = "جاري الاتصال...";
             
             let targetUrl = station.url;
@@ -854,9 +868,11 @@
                 c.querySelector('.play-icon').className = 'fas fa-play play-icon';
             });
             
-            cardElement.classList.add('playing');
-            cardElement.querySelector('.play-icon').className = 'fas fa-music play-icon'; 
-            currentPlayingCard = cardElement;
+            if (cardElement) {
+                cardElement.classList.add('playing');
+                cardElement.querySelector('.play-icon').className = 'fas fa-music play-icon'; 
+                currentPlayingCard = cardElement;
+            }
             
             playIcon.className = 'fas fa-spinner fa-spin'; 
 
@@ -869,16 +885,9 @@
                 hlsInstance.loadSource(targetUrl);
                 hlsInstance.attachMedia(audioPlayer);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                    let playPromise = audioPlayer.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(onPlaySuccess).catch(function(error) {
-                            if (myRequest !== currentPlayRequest) return;
-                            handleError();
-                        });
-                    }
+                    audioPlayer.play().then(onPlaySuccess).catch(handleError);
                 });
                 hlsInstance.on(Hls.Events.ERROR, function (event, data) { 
-                     if (myRequest !== currentPlayRequest) return;
                      if (data.fatal) {
                         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
                         else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
@@ -887,13 +896,7 @@
                 });
             } else if (targetUrl) {
                 audioPlayer.src = targetUrl;
-                let playPromise = audioPlayer.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(onPlaySuccess).catch(function(error) {
-                        if (myRequest !== currentPlayRequest) return;
-                        handleError();
-                    });
-                }
+                audioPlayer.play().then(onPlaySuccess).catch(handleError);
             }
         }
 
@@ -916,19 +919,10 @@
 
         function handleError() {
             playIcon.className = 'fas fa-play';
-            mainStatusText.textContent = "جاري التخطي التلقائي...";
+            mainStatusText.textContent = "فشل التشغيل";
             errorMsg.style.display = 'block';
             if (currentPlayingCard) currentPlayingCard.querySelector('.play-icon').className = 'fas fa-play play-icon';
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
-
-            if (errorTimeout) clearTimeout(errorTimeout);
-            errorTimeout = setTimeout(() => {
-                if (isPodcastPlaying) {
-                    playNextPodcastEpisode();
-                } else {
-                    playNextStationCategory();
-                }
-            }, 1500);
         }
 
         function togglePlay() {
@@ -1035,9 +1029,6 @@
         }
 
         function stopRadio() {
-            currentPlayRequest++; // إلغاء أي رسائل معلقة عند الإيقاف التام
-            
-            if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; }
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             audioPlayer.pause();
             audioPlayer.removeAttribute('src'); 
@@ -1135,7 +1126,41 @@
             }
         });
 
-        window.onload = initDropdown;
+        audioPlayer.addEventListener('error', handleError);
+
+        // ================== إضافة قراءة الذاكرة المؤقتة للـ Refresh ==================
+        window.onload = function() {
+            initDropdown();
+            
+            if (localStorage.getItem('esma3_mob_triggerPlay') === '1') {
+                localStorage.removeItem('esma3_mob_triggerPlay');
+                
+                const savedCat = localStorage.getItem('esma3_mob_cat');
+                const savedIdx = parseInt(localStorage.getItem('esma3_mob_idx'));
+                const savedHist = JSON.parse(localStorage.getItem('esma3_mob_hist') || '[]');
+                const savedHistIdx = parseInt(localStorage.getItem('esma3_mob_hist_idx'));
+                const savedEp = localStorage.getItem('esma3_mob_ep') ? JSON.parse(localStorage.getItem('esma3_mob_ep')) : null;
+
+                if (savedCat && !isNaN(savedIdx)) {
+                    categorySelect.value = savedCat;
+                    loadCategory(savedCat);
+                    
+                    podcastHistory = savedHist;
+                    currentPodcastHistoryIndex = isNaN(savedHistIdx) ? -1 : savedHistIdx;
+                    window.isRecoveringState = true;
+                    
+                    const stations = radioData[savedCat];
+                    if (stations && stations[savedIdx]) {
+                        currentStationIndex = savedIdx;
+                        const allCards = document.querySelectorAll('.station-card');
+                        const card = allCards[savedIdx] || null;
+                        
+                        playStation(stations[savedIdx], card, savedEp); 
+                    }
+                }
+            }
+        };
+        // =============================================================================
     </script>
 </body>
 </html>
