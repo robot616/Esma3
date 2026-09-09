@@ -446,6 +446,7 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
+            <!-- أزرار التحكم -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
@@ -720,6 +721,9 @@
         let nextClickTimeout = null;
         let prevClickTimeout = null;
         let errorTimeout = null; 
+        
+        // المتغير السحري لإلغاء أي إيرور قديم
+        let currentPlayRequest = 0;
 
         function showToast(msg) {
             const toast = document.getElementById('toastMessage');
@@ -797,12 +801,23 @@
         }
 
         function playStation(station, cardElement, specificEpisode = null) {
+            // تحديث رقم الطلب لقتل أي رسائل قديمة متأخرة
+            currentPlayRequest++;
+            let myRequest = currentPlayRequest;
+
             if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; } 
             errorMsg.style.display = 'none';
 
+            // مسح المصدر القديم فوراً لتنظيف المشغل
             audioPlayer.pause();
             audioPlayer.removeAttribute('src');
             audioPlayer.load();
+
+            // إعادة ربط الإيرور بالطلب الحالي فقط
+            audioPlayer.onerror = function(e) {
+                if (myRequest !== currentPlayRequest) return;
+                handleError(e);
+            };
 
             mainStatusText.textContent = "جاري الاتصال...";
             
@@ -854,12 +869,16 @@
                 hlsInstance.loadSource(targetUrl);
                 hlsInstance.attachMedia(audioPlayer);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                    audioPlayer.play().then(onPlaySuccess).catch(function(error) {
-                        if (error && error.name === 'AbortError') return;
-                        handleError();
-                    });
+                    let playPromise = audioPlayer.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(onPlaySuccess).catch(function(error) {
+                            if (myRequest !== currentPlayRequest) return;
+                            handleError();
+                        });
+                    }
                 });
                 hlsInstance.on(Hls.Events.ERROR, function (event, data) { 
+                     if (myRequest !== currentPlayRequest) return;
                      if (data.fatal) {
                         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hlsInstance.startLoad();
                         else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hlsInstance.recoverMediaError();
@@ -868,10 +887,13 @@
                 });
             } else if (targetUrl) {
                 audioPlayer.src = targetUrl;
-                audioPlayer.play().then(onPlaySuccess).catch(function(error) {
-                    if (error && error.name === 'AbortError') return;
-                    handleError();
-                });
+                let playPromise = audioPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(onPlaySuccess).catch(function(error) {
+                        if (myRequest !== currentPlayRequest) return;
+                        handleError();
+                    });
+                }
             }
         }
 
@@ -892,18 +914,7 @@
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         }
 
-        function handleError(e) {
-            // السطر ده هو الحل النهائي: تجاهل خطأ الـ Abort اللي بيحصل لما نغير المحطة
-            if (audioPlayer.error && audioPlayer.error.code === 1) {
-                return; 
-            }
-
-            // حماية للتأكد أنه إذا كان الراديو يعمل بنجاح نتجاهل أي رسالة خطأ وهمية
-            if (!audioPlayer.paused && audioPlayer.readyState > 0) {
-                errorMsg.style.display = 'none';
-                return;
-            }
-
+        function handleError() {
             playIcon.className = 'fas fa-play';
             mainStatusText.textContent = "جاري التخطي التلقائي...";
             errorMsg.style.display = 'block';
@@ -1024,6 +1035,8 @@
         }
 
         function stopRadio() {
+            currentPlayRequest++; // إلغاء أي رسائل معلقة عند الإيقاف التام
+            
             if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; }
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             audioPlayer.pause();
@@ -1122,10 +1135,6 @@
             }
         });
 
-        audioPlayer.addEventListener('error', function(e) {
-            handleError(e);
-        });
-        
         window.onload = initDropdown;
     </script>
 </body>
