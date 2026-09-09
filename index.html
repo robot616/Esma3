@@ -446,7 +446,7 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- تم تبديل أماكن زر السابق والتالي في الواجهة هنا بناءً على طلبك الأخير -->
+            <!-- أزرار التحكم -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
@@ -671,7 +671,7 @@
                 { name: "دياب إف إم", url: "https://stream.zeno.fm/rf64mx02qa0uv" },
                 { name: "عمرو دياب إف إم", url: "https://stream-153.zeno.fm/xa4yhh4k838uv" },
                 { name: "راديو دياب", url: "https://stream-172.zeno.fm/9t15vs7bkfhvv" },
-                { name: "راديو إليسا", url: "https://stream.zeno.fm/v7n499m8ckhvv" },
+                { name: "راديو إليسا", url: "https://stream-zeno.fm/v7n499m8ckhvv" },
                 { name: "محمد محيي", url: "https://stream-170.zeno.fm/gql4tcwrrxgtv" },
             ],
             "ثقافة ودراما": [
@@ -718,6 +718,7 @@
 
         let nextClickTimeout = null;
         let prevClickTimeout = null;
+        let errorTimeout = null; 
 
         function showToast(msg) {
             const toast = document.getElementById('toastMessage');
@@ -795,6 +796,7 @@
         }
 
         function playStation(station, cardElement, specificEpisode = null) {
+            if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; } 
             errorMsg.style.display = 'none';
             mainStatusText.textContent = "جاري الاتصال...";
             
@@ -880,10 +882,19 @@
 
         function handleError() {
             playIcon.className = 'fas fa-play';
-            mainStatusText.textContent = "فشل التشغيل";
+            mainStatusText.textContent = "جاري التخطي التلقائي...";
             errorMsg.style.display = 'block';
             if (currentPlayingCard) currentPlayingCard.querySelector('.play-icon').className = 'fas fa-play play-icon';
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+
+            if (errorTimeout) clearTimeout(errorTimeout);
+            errorTimeout = setTimeout(() => {
+                if (isPodcastPlaying) {
+                    playNextPodcastEpisode();
+                } else {
+                    playNextStationCategory();
+                }
+            }, 1500);
         }
 
         function togglePlay() {
@@ -990,6 +1001,7 @@
         }
 
         function stopRadio() {
+            if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; }
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
             audioPlayer.pause();
             audioPlayer.removeAttribute('src'); 
