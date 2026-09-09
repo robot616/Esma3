@@ -446,7 +446,6 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- أزرار التحكم -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
@@ -848,7 +847,10 @@
                 hlsInstance.loadSource(targetUrl);
                 hlsInstance.attachMedia(audioPlayer);
                 hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
-                    audioPlayer.play().then(onPlaySuccess).catch(handleError);
+                    audioPlayer.play().then(onPlaySuccess).catch(function(error) {
+                        if (error && error.name === 'AbortError') return;
+                        handleError();
+                    });
                 });
                 hlsInstance.on(Hls.Events.ERROR, function (event, data) { 
                      if (data.fatal) {
@@ -859,7 +861,10 @@
                 });
             } else if (targetUrl) {
                 audioPlayer.src = targetUrl;
-                audioPlayer.play().then(onPlaySuccess).catch(handleError);
+                audioPlayer.play().then(onPlaySuccess).catch(function(error) {
+                    if (error && error.name === 'AbortError') return;
+                    handleError();
+                });
             }
         }
 
