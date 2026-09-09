@@ -446,12 +446,12 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
-            <!-- أزرار التحكم -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
                 </button>
 
+                <!-- زر المحطة القادمة -->
                 <button class="btn-control" onclick="onNextButtonClicked()" title="المحطة/الحلقة القادمة">
                     <i class="fas fa-forward-step"></i>
                 </button>
@@ -460,6 +460,7 @@
                     <i id="playIcon" class="fas fa-play"></i>
                 </button>
 
+                <!-- زر المحطة السابقة -->
                 <button class="btn-control" onclick="onPrevButtonClicked()" title="المحطة/الحلقة السابقة">
                     <i class="fas fa-backward-step"></i>
                 </button>
@@ -799,7 +800,6 @@
             if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; } 
             errorMsg.style.display = 'none';
 
-            // تفريغ وعمل ريفرش سريع للمشغل لقتل أي رسالة خطأ معلقة بسبب الروابط غير المشفرة
             audioPlayer.pause();
             audioPlayer.removeAttribute('src');
             audioPlayer.load();
@@ -892,7 +892,12 @@
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
         }
 
-        function handleError() {
+        function handleError(e) {
+            // السطر ده هو الحل النهائي: تجاهل خطأ الـ Abort اللي بيحصل لما نغير المحطة
+            if (audioPlayer.error && audioPlayer.error.code === 1) {
+                return; 
+            }
+
             // حماية للتأكد أنه إذا كان الراديو يعمل بنجاح نتجاهل أي رسالة خطأ وهمية
             if (!audioPlayer.paused && audioPlayer.readyState > 0) {
                 errorMsg.style.display = 'none';
@@ -1117,7 +1122,10 @@
             }
         });
 
-        audioPlayer.addEventListener('error', handleError);
+        audioPlayer.addEventListener('error', function(e) {
+            handleError(e);
+        });
+        
         window.onload = initDropdown;
     </script>
 </body>
