@@ -446,6 +446,7 @@
                 <p id="errorMsg">الإذاعة لا تستجيب، تأكد من اتصالك</p>
             </div>
 
+            <!-- أزرار التحكم -->
             <div class="main-controls">
                 <button class="btn-control" onclick="toggleMute()" title="كتم الصوت">
                     <i id="muteIcon" class="fas fa-volume-up"></i>
@@ -797,6 +798,12 @@
         function playStation(station, cardElement, specificEpisode = null) {
             if (errorTimeout) { clearTimeout(errorTimeout); errorTimeout = null; } 
             errorMsg.style.display = 'none';
+
+            // تفريغ وعمل ريفرش سريع للمشغل لقتل أي رسالة خطأ معلقة بسبب الروابط غير المشفرة
+            audioPlayer.pause();
+            audioPlayer.removeAttribute('src');
+            audioPlayer.load();
+
             mainStatusText.textContent = "جاري الاتصال...";
             
             let targetUrl = station.url;
@@ -886,6 +893,12 @@
         }
 
         function handleError() {
+            // حماية للتأكد أنه إذا كان الراديو يعمل بنجاح نتجاهل أي رسالة خطأ وهمية
+            if (!audioPlayer.paused && audioPlayer.readyState > 0) {
+                errorMsg.style.display = 'none';
+                return;
+            }
+
             playIcon.className = 'fas fa-play';
             mainStatusText.textContent = "جاري التخطي التلقائي...";
             errorMsg.style.display = 'block';
