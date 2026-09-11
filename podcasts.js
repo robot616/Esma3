@@ -45,7 +45,7 @@ const memoryJourneyEpisodes = [
     { name: "بحثا عن المنطقة الوسطى... علم النفس ما وراء الشخصي وتجربة الاقتراب من الموت", url: "https://cdnv.russiatoday.com/media/audio/2025.08/6897d0b94c59b712cd0707d8.mp3" }
 ];
 
-window.kahfEpisodes = [
+const memorykahfEpisodes = [
     { name: "أبو بكر الشاطري", url: "https://server11.mp3quran.net/shatri/018.mp3" },
     { name: "أحمد العجمي", url: "https://server10.mp3quran.net/ajm/018.mp3" },
     { name: "الشحات محمد أنور", url: "https://archive.org/download/way2sona_20151219_2128/018.mp3" },
