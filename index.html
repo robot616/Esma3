@@ -486,7 +486,6 @@
                 { name: "تلاوات خاشعة (2)", url: "https://qurango.net/radio/salma" },
                 { name: "قرآن للقلب", url: "https://edge.mixlr.com/channel/rwumx" },
                 { name: "سورة البقرة", url: "https://qurango.net/radio/albaqarah" },
-                { name: "سورة الكهف", isRandom: true, getList: () => (typeof window.kahfEpisodes !== 'undefined' ? window.kahfEpisodes : []) },
                 { name: "سورة الكهف" },
                 { name: "آيات السكينة", url: "https://qurango.net/radio/sakeenah" },
                 { name: "الإذاعة العامة", url: "https://qurango.net/radio/mix" },
@@ -800,14 +799,19 @@
             sidebarOverlay.classList.remove('show');
         }
 
-        function playStation(station, cardElement, specificEpisode = null) {
+       function playStation(station, cardElement, specificEpisode = null) {
             // ================== إضافة الهروب من الـ Not Secure ==================
             let checkUrl = station.url;
             let tempEpisode = specificEpisode;
             
+            // التحقق من روابط البودكاست لسورة الكهف ورحلة في الذاكرة
             if (station.name === "رحلة في الذاكرة" && !tempEpisode) {
                 if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
                     checkUrl = memoryJourneyEpisodes[0].url; 
+                }
+            } else if (station.name === "سورة الكهف" && !tempEpisode) {
+                if (typeof memorykahfEpisodes !== 'undefined' && memorykahfEpisodes.length > 0) {
+                    checkUrl = memorykahfEpisodes[0].url; 
                 }
             }
             if (tempEpisode) checkUrl = tempEpisode.url;
@@ -839,14 +843,17 @@
             
             let targetUrl = station.url;
 
-            if (station.name === "رحلة في الذاكرة") {
+            // ---- منطق التشغيل العشوائي (لرحلة في الذاكرة وسورة الكهف) ----
+            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف") {
+                let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : memorykahfEpisodes;
+
                 if (specificEpisode) {
                     targetUrl = specificEpisode.url;
                     episodeNameEl.textContent = specificEpisode.name;
                     episodeNameEl.style.display = 'block';
                     isPodcastPlaying = true;
-                } else if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
-                    const randomEp = memoryJourneyEpisodes[Math.floor(Math.random() * memoryJourneyEpisodes.length)];
+                } else if (typeof activeEpisodesList !== 'undefined' && activeEpisodesList.length > 0) {
+                    const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
                     targetUrl = randomEp.url;
                     episodeNameEl.textContent = randomEp.name;
                     episodeNameEl.style.display = 'block';
@@ -986,7 +993,11 @@
                 const ep = podcastHistory[currentPodcastHistoryIndex];
                 playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], ep);
             } else {
-                const randomEp = memoryJourneyEpisodes[Math.floor(Math.random() * memoryJourneyEpisodes.length)];
+                // تحديد القائمة بناءً على المحطة الحالية لتجنب التداخل
+                const currentStationName = radioData[currentCategory][currentStationIndex].name;
+                const activeEpisodesList = currentStationName === "رحلة في الذاكرة" ? memoryJourneyEpisodes : memorykahfEpisodes;
+                
+                const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
                 podcastHistory.push(randomEp);
                 currentPodcastHistoryIndex = podcastHistory.length - 1;
                 playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], randomEp);
