@@ -659,6 +659,7 @@
                 { name: "مود إف إم", url: "https://radio-moodfm.mbc.net/radio-moodfm.m3u8" },
                 { name: "ألحان زمان", url: "https://stream-159.zeno.fm/tb47xcqv1zhvv" },
                 { name: "راديو ألحان", url: "https://stream-63.zeno.fm/407axfdtcphvv" },
+                { name: "راديو طبيب", url: "https://stream-174.zeno.fm/z6exeh5qc0hvv" },
             ],
             "مطربين": [
                 { name: "كوكب الشرق", url: "https://stream-154.zeno.fm/puv30d6l1bjtv" },
@@ -677,7 +678,7 @@
             ],
             "ثقافة ودراما": [
                 { name: "رحلة في الذاكرة" },
-                { name: "راديو طبيب", url: "https://stream-174.zeno.fm/z6exeh5qc0hvv" },
+                { name: "الدحيح" },
                 { name: "مصطفى محمود", url: "https://stream-173.zeno.fm/t3azszm0pnhvv" },
                 { name: "أحمد خالد توفيق", url: "https://stream-179.zeno.fm/qbkzrtpwsgquv" },
                 { name: "عرب ميكس دراما", url: "https://stream.zeno.fm/ct8habf171zuv" },
@@ -804,7 +805,7 @@
             let checkUrl = station.url;
             let tempEpisode = specificEpisode;
             
-            // التحقق من روابط البودكاست لسورة الكهف ورحلة في الذاكرة
+            // التحقق من روابط البودكاست لسورة الكهف ورحلة في الذاكرة والدحيح
             if (station.name === "رحلة في الذاكرة" && !tempEpisode) {
                 if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
                     checkUrl = memoryJourneyEpisodes[0].url; 
@@ -812,6 +813,10 @@
             } else if (station.name === "سورة الكهف" && !tempEpisode) {
                 if (typeof memorykahfEpisodes !== 'undefined' && memorykahfEpisodes.length > 0) {
                     checkUrl = memorykahfEpisodes[0].url; 
+                }
+            } else if (station.name === "الدحيح" && !tempEpisode) {
+                if (typeof daheehEpisodes !== 'undefined' && daheehEpisodes.length > 0) {
+                    checkUrl = daheehEpisodes[0].url; 
                 }
             }
             if (tempEpisode) checkUrl = tempEpisode.url;
@@ -843,9 +848,10 @@
             
             let targetUrl = station.url;
 
-            // ---- منطق التشغيل العشوائي (لرحلة في الذاكرة وسورة الكهف) ----
-            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف") {
-                let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : memorykahfEpisodes;
+            // ---- منطق التشغيل العشوائي (لرحلة في الذاكرة وسورة الكهف والدحيح) ----
+            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف" || station.name === "الدحيح") {
+                let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
+                                         (station.name === "الدحيح" ? daheehEpisodes : memorykahfEpisodes);
 
                 if (specificEpisode) {
                     targetUrl = specificEpisode.url;
@@ -995,7 +1001,8 @@
             } else {
                 // تحديد القائمة بناءً على المحطة الحالية لتجنب التداخل
                 const currentStationName = radioData[currentCategory][currentStationIndex].name;
-                const activeEpisodesList = currentStationName === "رحلة في الذاكرة" ? memoryJourneyEpisodes : memorykahfEpisodes;
+                const activeEpisodesList = currentStationName === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
+                                           (currentStationName === "الدحيح" ? daheehEpisodes : memorykahfEpisodes);
                 
                 const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
                 podcastHistory.push(randomEp);
