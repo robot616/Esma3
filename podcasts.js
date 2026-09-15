@@ -51,6 +51,7 @@ const memorykahfEpisodes = [
 ];
 
 const memoryJourneyEpisodes = [
+    { name: "كاسترو والتحديات الداخلية والخارجية للثورة الكوبية", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6aa6f3fd423604027149dc56.mp3" },
     { name: "كيف أنقذ الماسونيون كاسترو من الإعدام؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6a9d6a33423604207a52d242.mp3" },
     { name: "هل سنسلم شؤوننا إلى الآلات طوعا أو كرها؟", url: "https://cdnv.russiatoday.com/media/audio/2026.08/6a9419d64c59b716871dd107.mp3" },
     { name: "التجسس الرقمي والسيادة الرقمية", url: "https://cdnv.russiatoday.com/media/audio/2026.08/6a8a200342360465173b5b24.mp3" },
