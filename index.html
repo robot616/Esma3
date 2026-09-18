@@ -2,8 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    
+    <!-- السطر السحري لحل مشكلة شريط الأندرويد الأبيض -->
+    <meta name="color-scheme" content="dark">
     
     <meta name="theme-color" content="#111820">
     <meta name="mobile-web-app-capable" content="yes">
@@ -42,25 +45,17 @@
         }
 
         body, html {
-            background-color: #111820 !important;
+            background-color: #111820;
             color: var(--text-main);
-            height: 100%;
+            height: 100dvh; /* استخدام القياس الديناميكي الدقيق للموبايل */
             width: 100%;
-            margin: 0;
-            padding: 0;
             overflow: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            overscroll-behavior: none;
+            position: relative;
         }
 
         .main-player {
             position: absolute;
-            top: 0; left: 0; right: 0; 
-            bottom: -15px; /* تمديد الخلفية للأسفل لإخفاء أي خط أبيض */
+            top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -68,7 +63,6 @@
             background-size: cover;
             background-position: center;
             z-index: 1;
-            padding-bottom: 15px; /* تعويض التمديد للحفاظ على توسط العناصر */
         }
 
         .overlay-bg {
@@ -366,6 +360,7 @@
         .station-card.playing .play-icon { color: var(--primary); }
         .station-card h3 { font-size: 1rem; font-weight: normal; }
 
+        /* رسالة التنبيه (Toast) */
         .toast-msg {
             visibility: hidden;
             min-width: 250px;
@@ -492,7 +487,6 @@
                 { name: "إذاعة القرآن الكريم (الكويت)", url: "https://kwtkrdota.cdn.mangomolo.com/qrrdo/qrrdo.stream_aac/chunklist.m3u8" }, 
                 { name: "إذاعة القرآن الكريم (نابلس)", url: "https://quran-radio.org:8899/;?type=http&nocache=29" },
                 { name: "إذاعة القرآن الكريم (الجزائر)", url: "https://radiocoran.ice.infomaniak.ch/coran.mp3" },
-                { name: "إذاعة القرآن الكريم (تونس)", url: "https://stream.radioendirect.net/8960" },
                 { name: "إذاعة المجد للقرآن الكريم", url: "https://r1.tarat.com:8196/;" },
                 { name: "راديو القرآن", url: "https://radio.mp3islam.com/listen/quran_radio/radio.mp3" },
                 { name: "الإذاعة العامة", url: "https://qurango.net/radio/mix" },
@@ -501,7 +495,7 @@
                 { name: "تلاوات خاشعة (2)", url: "https://qurango.net/radio/salma" },
                 { name: "سورة البقرة", url: "https://qurango.net/radio/albaqarah" },
                 { name: "سورة الكهف" },
-                 { name: "آيات السكينة", url: "https://qurango.net/radio/sakeenah" },
+                { name: "آيات السكينة", url: "https://qurango.net/radio/sakeenah" },
                 { name: "مشاري العفاسي", url: "https://qurango.net/radio/mishary_alafasi" },
                 { name: "مشاري العفاسي (2)", url: "https://radio.mp3islam.com/listen/mishary/radio.mp3" },
                 { name: "ماهر المعيقلي", url: "https://qurango.net/radio/maher_al_meaqli" },
