@@ -392,6 +392,7 @@
 <body>
 
     <script src="podcasts.js"></script>
+    <script src="boti.js"></script>
 
     <button class="mobile-menu-btn" onclick="openSidebar()">
         <i class="fa-solid fa-bars-staggered"></i>
@@ -635,6 +636,7 @@
                 { name: "إذاعة نور الإيمان", url: "https://stream.zeno.fm/r6eprdta6nhvv" },
                 { name: "نداء المعرفة", url: "https://nidaa.fm:8443/stream.mp3" },
                 { name: "الشيخ الشعراوي", url: "https://stream-175.zeno.fm/guuggdfrvssuv" },
+                { name: "الشيخ محمد سعيد البوطي" },
                 { name: "المختصر في تفسير القرآن", url: "https://qurango.net/radio/mukhtasartafsir" },
                 { name: "المختصر في السيرة النبوية", url: "https://qurango.net/radio/almukhtasar_fi_alsiyra" },
                 { name: "في ظلال السيرة النبوية", url: "https://qurango.net/radio/fi_zilal_alsiyra" },
@@ -876,7 +878,7 @@
             let checkUrl = station.url;
             let tempEpisode = specificEpisode;
             
-            // التحقق من روابط البودكاست لسورة الكهف ورحلة في الذاكرة والدحيح
+            // التحقق من روابط البودكاست
             if (station.name === "رحلة في الذاكرة" && !tempEpisode) {
                 if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
                     checkUrl = memoryJourneyEpisodes[0].url; 
@@ -888,6 +890,10 @@
             } else if (station.name === "الدحيح" && !tempEpisode) {
                 if (typeof daheehEpisodes !== 'undefined' && daheehEpisodes.length > 0) {
                     checkUrl = daheehEpisodes[0].url; 
+                }
+            } else if (station.name === "الشيخ محمد سعيد البوطي" && !tempEpisode) {
+                if (typeof boutiEpisodes !== 'undefined' && boutiEpisodes.length > 0) {
+                    checkUrl = boutiEpisodes[0].url; 
                 }
             }
             if (tempEpisode) checkUrl = tempEpisode.url;
@@ -919,10 +925,11 @@
             
             let targetUrl = station.url;
 
-            // ---- منطق التشغيل العشوائي (لرحلة في الذاكرة وسورة الكهف والدحيح) ----
-            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف" || station.name === "الدحيح") {
+            // ---- منطق التشغيل العشوائي ----
+            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف" || station.name === "الدحيح" || station.name === "الشيخ محمد سعيد البوطي") {
                 let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
-                                         (station.name === "الدحيح" ? daheehEpisodes : memorykahfEpisodes);
+                                         (station.name === "الدحيح" ? daheehEpisodes : 
+                                         (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
 
                 if (specificEpisode) {
                     targetUrl = specificEpisode.url;
@@ -1073,7 +1080,8 @@
                 // تحديد القائمة بناءً على المحطة الحالية لتجنب التداخل
                 const currentStationName = radioData[currentCategory][currentStationIndex].name;
                 const activeEpisodesList = currentStationName === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
-                                           (currentStationName === "الدحيح" ? daheehEpisodes : memorykahfEpisodes);
+                                           (currentStationName === "الدحيح" ? daheehEpisodes : 
+                                           (currentStationName === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
                 
                 const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
                 podcastHistory.push(randomEp);
