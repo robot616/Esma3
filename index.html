@@ -861,6 +861,9 @@
                 };
                 stationsContainer.appendChild(card);
             });
+            
+            // رفع شريط التمرير لأول القائمة عند تغيير القسم
+            stationsContainer.scrollTop = 0;
         }
 
         function openSidebar() {
@@ -1037,19 +1040,21 @@
             }
         }
 
-        function onNextButtonClicked() {
+         function onNextButtonClicked() {
             if (nextClickTimeout) {
                 clearTimeout(nextClickTimeout);
                 nextClickTimeout = null;
-                playNextStationCategory();
+                // ضغطتين: تغيير الحلقة (بودكاست)
+                if (isPodcastPlaying) {
+                    playNextPodcastEpisode();
+                } else {
+                    playNextStationCategory();
+                }
             } else {
                 nextClickTimeout = setTimeout(() => {
                     nextClickTimeout = null;
-                    if (isPodcastPlaying) {
-                        playNextPodcastEpisode();
-                    } else {
-                        playNextStationCategory();
-                    }
+                    // ضغطة واحدة: تغيير المحطة
+                    playNextStationCategory();
                 }, 300);
             }
         }
@@ -1058,15 +1063,17 @@
             if (prevClickTimeout) {
                 clearTimeout(prevClickTimeout);
                 prevClickTimeout = null;
-                playPrevStationCategory();
+                // ضغطتين: تغيير الحلقة السابقة (بودكاست)
+                if (isPodcastPlaying) {
+                    playPrevPodcastEpisode();
+                } else {
+                    playPrevStationCategory();
+                }
             } else {
                 prevClickTimeout = setTimeout(() => {
                     prevClickTimeout = null;
-                    if (isPodcastPlaying) {
-                        playPrevPodcastEpisode();
-                    } else {
-                        playPrevStationCategory();
-                    }
+                    // ضغطة واحدة: تغيير المحطة
+                    playPrevStationCategory();
                 }, 300);
             }
         }
