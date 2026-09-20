@@ -51,6 +51,7 @@ const memorykahfEpisodes = [
 ];
 
 const memoryJourneyEpisodes = [
+    { name: "هل سيصبح الإرهاب الدولي في عصر الذكاء الاصطناعي أكثر خطرا؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6aafcd4e4236042ad079705b.mp3" },
     { name: "كاسترو والتحديات الداخلية والخارجية للثورة الكوبية", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6aa6f3fd423604027149dc56.mp3" },
     { name: "كيف أنقذ الماسونيون كاسترو من الإعدام؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6a9d6a33423604207a52d242.mp3" },
     { name: "هل سنسلم شؤوننا إلى الآلات طوعا أو كرها؟", url: "https://cdnv.russiatoday.com/media/audio/2026.08/6a9419d64c59b716871dd107.mp3" },
@@ -98,6 +99,7 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "الهنود الحمر", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/f05c46c5-4a95-4bcd-a70d-8dfb4a189454/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=f05c46c5-4a95-4bcd-a70d-8dfb4a189454&feed=97g_Tzxn" },
     { name: "رحلة القضاء على شلل الأطفال", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/390a26f0-d091-4be4-8bf1-2945762b9227/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=390a26f0-d091-4be4-8bf1-2945762b9227&feed=97g_Tzxn" },
     { name: "أرقام أكبر من حجم الكون", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/28de108f-1a7f-438d-a5d1-d6f42b1346fb/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=28de108f-1a7f-438d-a5d1-d6f42b1346fb&feed=97g_Tzxn" },
     { name: "أعظم طائرة حربية", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/efd999e3-0f01-4069-9760-b37aa0f496d9/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=efd999e3-0f01-4069-9760-b37aa0f496d9&feed=97g_Tzxn" },
