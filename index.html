@@ -1040,42 +1040,72 @@
             }
         }
 
-         function onNextButtonClicked() {
-            if (nextClickTimeout) {
-                clearTimeout(nextClickTimeout);
+         let nextClickCountMob = 0;
+        function onNextButtonClicked() {
+            nextClickCountMob++;
+            if (nextClickTimeout) clearTimeout(nextClickTimeout);
+            
+            nextClickTimeout = setTimeout(() => {
+                let clicks = nextClickCountMob;
+                nextClickCountMob = 0;
                 nextClickTimeout = null;
-                // ضغطتين: تغيير الحلقة (بودكاست)
-                if (isPodcastPlaying) {
-                    playNextPodcastEpisode();
-                } else {
+                
+                if (clicks === 1) {
                     playNextStationCategory();
+                } else if (clicks === 2) {
+                    if (isPodcastPlaying) playNextPodcastEpisode();
+                    else playNextStationCategory();
+                } else if (clicks >= 3) {
+                    if (isPodcastPlaying) {
+                        const station = radioData[currentCategory][currentStationIndex];
+                        let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
+                                                 (station.name === "الدحيح" ? daheehEpisodes : 
+                                                 (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
+                        if (activeEpisodesList && activeEpisodesList.length > 0) {
+                            const firstEp = activeEpisodesList[0];
+                            podcastHistory.push(firstEp);
+                            currentPodcastHistoryIndex = podcastHistory.length - 1;
+                            playStation(station, document.querySelectorAll('.station-card')[currentStationIndex], firstEp);
+                        }
+                    } else {
+                        playNextStationCategory();
+                    }
                 }
-            } else {
-                nextClickTimeout = setTimeout(() => {
-                    nextClickTimeout = null;
-                    // ضغطة واحدة: تغيير المحطة
-                    playNextStationCategory();
-                }, 300);
-            }
+            }, 400);
         }
 
+        let prevClickCountMob = 0;
         function onPrevButtonClicked() {
-            if (prevClickTimeout) {
-                clearTimeout(prevClickTimeout);
+            prevClickCountMob++;
+            if (prevClickTimeout) clearTimeout(prevClickTimeout);
+            
+            prevClickTimeout = setTimeout(() => {
+                let clicks = prevClickCountMob;
+                prevClickCountMob = 0;
                 prevClickTimeout = null;
-                // ضغطتين: تغيير الحلقة السابقة (بودكاست)
-                if (isPodcastPlaying) {
-                    playPrevPodcastEpisode();
-                } else {
+                
+                if (clicks === 1) {
                     playPrevStationCategory();
+                } else if (clicks === 2) {
+                    if (isPodcastPlaying) playPrevPodcastEpisode();
+                    else playPrevStationCategory();
+                } else if (clicks >= 3) {
+                     if (isPodcastPlaying) {
+                        const station = radioData[currentCategory][currentStationIndex];
+                        let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
+                                                 (station.name === "الدحيح" ? daheehEpisodes : 
+                                                 (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
+                        if (activeEpisodesList && activeEpisodesList.length > 0) {
+                            const firstEp = activeEpisodesList[0];
+                            podcastHistory.push(firstEp);
+                            currentPodcastHistoryIndex = podcastHistory.length - 1;
+                            playStation(station, document.querySelectorAll('.station-card')[currentStationIndex], firstEp);
+                        }
+                    } else {
+                        playPrevStationCategory();
+                    }
                 }
-            } else {
-                prevClickTimeout = setTimeout(() => {
-                    prevClickTimeout = null;
-                    // ضغطة واحدة: تغيير المحطة
-                    playPrevStationCategory();
-                }, 300);
-            }
+            }, 400);
         }
 
         function playNextPodcastEpisode() {
@@ -1234,6 +1264,29 @@
 
         audioPlayer.addEventListener('error', handleError);
 
+        // ================== إضافة حفظ مكان البودكاست (للموبايل) ==================
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (isPodcastPlaying && audioPlayer.currentTime > 5) {
+                localStorage.setItem('esma3_mob_time_' + episodeNameEl.textContent, audioPlayer.currentTime);
+            }
+        });
+
+        audioPlayer.addEventListener('canplay', () => {
+            if (isPodcastPlaying) {
+                const savedTime = localStorage.getItem('esma3_mob_time_' + episodeNameEl.textContent);
+                if (savedTime && audioPlayer.currentTime < 2) {
+                    audioPlayer.currentTime = parseFloat(savedTime);
+                }
+            }
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            if (isPodcastPlaying) {
+                localStorage.removeItem('esma3_mob_time_' + episodeNameEl.textContent);
+            }
+        });
+        // =========================================================================
+        
         // ================== إضافة قراءة الذاكرة المؤقتة للـ Refresh ==================
         window.onload = function() {
             initDropdown();
