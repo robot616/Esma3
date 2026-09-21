@@ -1,5 +1,6 @@
 // ملف podcasts.js - خزان حلقات البودكاست
 const memorykahfEpisodes = [
+    { name: "محمود المالكي", url: "https://media.way2quran.com/mahmoud-almaliki-al-libi/hafs-an-asim/018.mp3" },
     { name: "أبو بكر الشاطري", url: "https://server11.mp3quran.net/shatri/018.mp3" },
     { name: "أحمد العجمي", url: "https://server10.mp3quran.net/ajm/018.mp3" },
     { name: "الشحات محمد أنور", url: "https://archive.org/download/way2sona_20151219_2128/018.mp3" },
@@ -41,7 +42,6 @@ const memorykahfEpisodes = [
     { name: "ياسر الدوسري", url: "https://server11.mp3quran.net/yasser/018.mp3" },
     { name: "ياسين الجزائري", url: "https://archive.org/download/TvQuran.com__Yaseen/018.mp3" },
     { name: "رعد محمد الكردي", url: "https://media.way2quran.com/raad-al-kurdi/hafs-an-asim/018.mp3" },
-    { name: "محمود المالكي", url: "https://media.way2quran.com/mahmoud-almaliki-al-libi/hafs-an-asim/018.mp3" },
     { name: "هيثم الدخين", url: "https://cdn.islam-online.net/data/full/haitham-al-dukhin/018.mp3" },
     { name: "محمد الفقيه", url: "https://media.way2quran.com/mohammed-alfaqih/hafs-an-asim/018.mp3" },
     { name: "محمد هشام", url: "https://ia801405.us.archive.org/31/items/002_20221105_20221105_1355/018.mp3" },
