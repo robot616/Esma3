@@ -1108,16 +1108,22 @@
                 const ep = podcastHistory[currentPodcastHistoryIndex];
                 playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], ep);
             } else {
-                // تحديد القائمة بناءً على المحطة الحالية لتجنب التداخل
+                // التحديث الجديد: التعرف على جميع الإذاعات الجديدة لجلب الحلقة القادمة
                 const currentStationName = radioData[currentCategory][currentStationIndex].name;
                 const activeEpisodesList = currentStationName === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
                                            (currentStationName === "الدحيح" ? daheehEpisodes : 
-                                           (currentStationName === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
+                                           (currentStationName === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : 
+                                           (currentStationName === "هيثم الدخين" ? quranHaithamEpisodes : 
+                                           (currentStationName === "رعد الكردي" ? quranRaadEpisodes : quranKahfEpisodes))));
                 
-                const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
-                podcastHistory.push(randomEp);
-                currentPodcastHistoryIndex = podcastHistory.length - 1;
-                playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], randomEp);
+                if (activeEpisodesList && activeEpisodesList.length > 0) {
+                    const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
+                    podcastHistory.push(randomEp);
+                    currentPodcastHistoryIndex = podcastHistory.length - 1;
+                    playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], randomEp);
+                } else {
+                    showToast("حدث خطأ في تحميل الحلقات");
+                }
             }
         }
 
