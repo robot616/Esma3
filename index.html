@@ -393,6 +393,7 @@
 
     <script src="podcasts.js"></script>
     <script src="boti.js"></script>
+    <script src="quran.js"></script>
 
     <button class="mobile-menu-btn" onclick="openSidebar()">
         <i class="fa-solid fa-bars-staggered"></i>
@@ -505,10 +506,12 @@
                 { name: "آيات السكينة", url: "https://qurango.net/radio/sakeenah" },
                 { name: "مشاري العفاسي", url: "https://qurango.net/radio/mishary_alafasi" },
                 { name: "مشاري العفاسي (2)", url: "https://radio.mp3islam.com/listen/mishary/radio.mp3" },
+                { name: "هيثم الدخين" },
+                { name: "رعد الكردي" },
                 { name: "ماهر المعيقلي", url: "https://qurango.net/radio/maher_al_meaqli" },
                 { name: "ماهر المعيقلي (2)", url: "https://radio.mp3islam.com/listen/maher/radio.mp3" },
-                { name: "إسلام صبحي", url: "https://stream-164.zeno.fm/zorvpgdqfzbuv" },
                 { name: "أحمد العجمي", url: "https://qurango.net/radio/ahmad_alajmy" },
+                { name: "إسلام صبحي", url: "https://stream-164.zeno.fm/zorvpgdqfzbuv" },
                 { name: "أحمد الحواشي", url: "https://qurango.net/radio/ahmad_alhawashi" },
                 { name: "أحمد الطرابلسي", url: "https://qurango.net/radio/ahmed_altrabulsi" },
                 { name: "أحمد الطرابلسي (2)", url: "https://qurango.net/radio/ahmad_khader_altarabulsi" },
@@ -877,41 +880,27 @@
         }
 
        function playStation(station, cardElement, specificEpisode = null) {
-            // ================== إضافة الهروب من الـ Not Secure ==================
             let checkUrl = station.url;
             let tempEpisode = specificEpisode;
             
-            // التحقق من روابط البودكاست
-            if (station.name === "رحلة في الذاكرة" && !tempEpisode) {
-                if (typeof memoryJourneyEpisodes !== 'undefined' && memoryJourneyEpisodes.length > 0) {
-                    checkUrl = memoryJourneyEpisodes[0].url; 
-                }
-            } else if (station.name === "سورة الكهف" && !tempEpisode) {
-                if (typeof memorykahfEpisodes !== 'undefined' && memorykahfEpisodes.length > 0) {
-                    checkUrl = memorykahfEpisodes[0].url; 
-                }
-            } else if (station.name === "الدحيح" && !tempEpisode) {
-                if (typeof daheehEpisodes !== 'undefined' && daheehEpisodes.length > 0) {
-                    checkUrl = daheehEpisodes[0].url; 
-                }
-            } else if (station.name === "الشيخ محمد سعيد البوطي" && !tempEpisode) {
-                if (typeof boutiEpisodes !== 'undefined' && boutiEpisodes.length > 0) {
-                    checkUrl = boutiEpisodes[0].url; 
-                }
-            }
+            // التحقق من البودكاست
+            if (station.name === "رحلة في الذاكرة" && !tempEpisode && typeof memoryJourneyEpisodes !== 'undefined') checkUrl = memoryJourneyEpisodes[0].url; 
+            else if (station.name === "سورة الكهف" && !tempEpisode && typeof quranKahfEpisodes !== 'undefined') checkUrl = quranKahfEpisodes[0].url; 
+            else if (station.name === "الدحيح" && !tempEpisode && typeof daheehEpisodes !== 'undefined') checkUrl = daheehEpisodes[0].url; 
+            else if (station.name === "الشيخ محمد سعيد البوطي" && !tempEpisode && typeof boutiEpisodes !== 'undefined') checkUrl = boutiEpisodes[0].url; 
+            else if (station.name === "هيثم الدخين" && !tempEpisode && typeof quranHaithamEpisodes !== 'undefined') checkUrl = quranHaithamEpisodes[0].url;
+            else if (station.name === "رعد الكردي" && !tempEpisode && typeof quranRaadEpisodes !== 'undefined') checkUrl = quranRaadEpisodes[0].url;
+
             if (tempEpisode) checkUrl = tempEpisode.url;
 
             if (isPageTainted && !window.isRecoveringState) {
                 localStorage.setItem('esma3_mob_cat', currentCategory);
                 localStorage.setItem('esma3_mob_idx', currentStationIndex);
-                
                 localStorage.setItem('esma3_mob_hist', JSON.stringify(podcastHistory));
                 localStorage.setItem('esma3_mob_hist_idx', currentPodcastHistoryIndex);
                 if (tempEpisode) localStorage.setItem('esma3_mob_ep', JSON.stringify(tempEpisode));
                 else localStorage.removeItem('esma3_mob_ep');
-                
                 localStorage.setItem('esma3_mob_triggerPlay', '1');
-                
                 window.location.reload();
                 return;
             }
@@ -921,18 +910,20 @@
             if (checkUrl && checkUrl.startsWith('http://')) {
                 isPageTainted = true;
             }
-            // ===================================================================
 
             errorMsg.style.display = 'none';
             mainStatusText.textContent = "جاري الاتصال...";
             
             let targetUrl = station.url;
 
-            // ---- منطق التشغيل العشوائي ----
-            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف" || station.name === "الدحيح" || station.name === "الشيخ محمد سعيد البوطي") {
+            // ---- منطق التشغيل العشوائي للبودكاست ----
+            if (station.name === "رحلة في الذاكرة" || station.name === "سورة الكهف" || station.name === "الدحيح" || station.name === "الشيخ محمد سعيد البوطي" || station.name === "هيثم الدخين" || station.name === "رعد الكردي") {
+                
                 let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
                                          (station.name === "الدحيح" ? daheehEpisodes : 
-                                         (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
+                                         (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : 
+                                         (station.name === "هيثم الدخين" ? quranHaithamEpisodes : 
+                                         (station.name === "رعد الكردي" ? quranRaadEpisodes : quranKahfEpisodes))));
 
                 if (specificEpisode) {
                     targetUrl = specificEpisode.url;
@@ -971,7 +962,6 @@
             }
             
             playIcon.className = 'fas fa-spinner fa-spin'; 
-
             closeSidebar();
 
             if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
@@ -1040,7 +1030,7 @@
             }
         }
 
-         let nextClickCountMob = 0;
+        let nextClickCountMob = 0;
         function onNextButtonClicked() {
             nextClickCountMob++;
             if (nextClickTimeout) clearTimeout(nextClickTimeout);
@@ -1060,7 +1050,9 @@
                         const station = radioData[currentCategory][currentStationIndex];
                         let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
                                                  (station.name === "الدحيح" ? daheehEpisodes : 
-                                                 (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
+                                                 (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : 
+                                                 (station.name === "هيثم الدخين" ? quranHaithamEpisodes : 
+                                                 (station.name === "رعد الكردي" ? quranRaadEpisodes : quranKahfEpisodes))));
                         if (activeEpisodesList && activeEpisodesList.length > 0) {
                             const firstEp = activeEpisodesList[0];
                             podcastHistory.push(firstEp);
@@ -1094,7 +1086,9 @@
                         const station = radioData[currentCategory][currentStationIndex];
                         let activeEpisodesList = station.name === "رحلة في الذاكرة" ? memoryJourneyEpisodes : 
                                                  (station.name === "الدحيح" ? daheehEpisodes : 
-                                                 (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : memorykahfEpisodes));
+                                                 (station.name === "الشيخ محمد سعيد البوطي" ? boutiEpisodes : 
+                                                 (station.name === "هيثم الدخين" ? quranHaithamEpisodes : 
+                                                 (station.name === "رعد الكردي" ? quranRaadEpisodes : quranKahfEpisodes))));
                         if (activeEpisodesList && activeEpisodesList.length > 0) {
                             const firstEp = activeEpisodesList[0];
                             podcastHistory.push(firstEp);
