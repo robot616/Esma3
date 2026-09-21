@@ -50,6 +50,7 @@ window.quranKahfEpisodes = [
 ];
 
 window.quranHaithamEpisodes = [
+    { name: "الحج", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F022.mp3?generation=1706539330518909&alt=media" },
     { name: "الفاتحة", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F001.mp3?generation=1706539290385240&alt=media" },
     { name: "البقرة", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F002.mp3?generation=1706539297427201&alt=media" },
     { name: "آل عمران", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F003.mp3?generation=1706539300935305&alt=media" },
@@ -71,7 +72,6 @@ window.quranHaithamEpisodes = [
     { name: "مريم", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F019.mp3?generation=1706539378170846&alt=media" },
     { name: "طه", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F020.mp3?generation=1706539326221073&alt=media" },
     { name: "الأنبياء", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F021.mp3?generation=1706539328240949&alt=media" },
-    { name: "الحج", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F022.mp3?generation=1706539330518909&alt=media" },
     { name: "المؤمنون", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F023.mp3?generation=1706539332292005&alt=media" },
     { name: "النور", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F024.mp3?generation=1706539334627006&alt=media" },
     { name: "الفرقان", url: "https://storage.googleapis.com/download/storage/v1/b/way2quran_storage/o/haitham-al-dukhin%2Fhafs-an-asim%2F025.mp3?generation=1706539336306838&alt=media" },
@@ -167,6 +167,7 @@ window.quranHaithamEpisodes = [
 ];
 
 window.quranRaadEpisodes = [
+    { name: "طه", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/020.mp3" },
     { name: "الفاتحة", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/001.mp3" },
     { name: "البقرة", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/002.mp3" },
     { name: "البقرة", url: "https://raadkurdi.net/files/audios/3265192351.mp3" },
@@ -181,7 +182,6 @@ window.quranRaadEpisodes = [
     { name: "الكهف", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/018.mp3" },
     { name: "مريم", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/019.mp3" },
     { name: "مريم", url: "https://raadkurdi.net/files/audios/3346752988.mp3" },
-    { name: "طه", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/020.mp3" },
     { name: "طه", url: "https://raadkurdi.net/files/audios/3256631572.mp3" },
     { name: "الأنبياء", url: "https://ia801408.us.archive.org/11/items/Raad-Al_Kurdi/021.mp3" },
     { name: "الأنبياء", url: "https://raadkurdi.net/files/audios/3320130082.mp3" },
