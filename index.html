@@ -47,7 +47,8 @@
         body, html {
             background-color: #111820;
             color: var(--text-main);
-            height: 100dvh; /* استخدام القياس الديناميكي الدقيق للموبايل */
+            height: 100vh; /* خط دفاع أول للمتصفحات القديمة لحل الشاشة البيضاء */
+            height: 100dvh; /* للمتصفحات الحديثة */
             width: 100%;
             overflow: hidden;
             position: relative;
@@ -387,6 +388,23 @@
             bottom: 50px;
         }
 
+        /* ================== توافق التابلت (أبعاد تلقائية) ================== */
+        @media (min-width: 600px) {
+            .glass-panel { max-width: 550px; padding: 60px 30px; }
+            .player-info h3 { font-size: 2.4rem; }
+            .player-info p.status-text { font-size: 1.3rem; margin-bottom: 40px; }
+            .player-info .episode-name { font-size: 1.2rem; }
+            .btn-control { font-size: 2.2rem; }
+            .btn-play-pause { width: 100px; height: 100px; font-size: 2.8rem; }
+            .mobile-menu-btn { width: 60px; height: 60px; font-size: 2.2rem; }
+            .btn-top { width: 60px; height: 60px; font-size: 1.6rem; }
+            .sidebar { max-width: 400px; }
+            .dropdown-container { padding-top: 40px; }
+            .station-card { padding: 20px; }
+            .station-card h3 { font-size: 1.3rem; }
+            .category-dropdown { font-size: 1.4rem; padding: 18px 20px 18px 50px; }
+        }
+        
     </style>
 </head>
 <body>
