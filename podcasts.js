@@ -47,6 +47,7 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "الهنود الحمر (2)", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/73f0e310-691e-427c-a002-50876acf2e24/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=73f0e310-691e-427c-a002-50876acf2e24&feed=97g_Tzxn" },
     { name: "الهنود الحمر", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/f05c46c5-4a95-4bcd-a70d-8dfb4a189454/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=f05c46c5-4a95-4bcd-a70d-8dfb4a189454&feed=97g_Tzxn" },
     { name: "رحلة القضاء على شلل الأطفال", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/390a26f0-d091-4be4-8bf1-2945762b9227/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=390a26f0-d091-4be4-8bf1-2945762b9227&feed=97g_Tzxn" },
     { name: "أرقام أكبر من حجم الكون", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/28de108f-1a7f-438d-a5d1-d6f42b1346fb/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=28de108f-1a7f-438d-a5d1-d6f42b1346fb&feed=97g_Tzxn" },
