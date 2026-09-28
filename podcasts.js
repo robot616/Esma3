@@ -1,4 +1,5 @@
 const memoryJourneyEpisodes = [
+    { name: "كيف نجا كاسترو من مئات محاولات الاغتيال؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6ab96f224c59b7752e37a5c3.mp3" },
     { name: "هل سيصبح الإرهاب الدولي في عصر الذكاء الاصطناعي أكثر خطرا؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6aafcd4e4236042ad079705b.mp3" },
     { name: "كاسترو والتحديات الداخلية والخارجية للثورة الكوبية", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6aa6f3fd423604027149dc56.mp3" },
     { name: "كيف أنقذ الماسونيون كاسترو من الإعدام؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6a9d6a33423604207a52d242.mp3" },
@@ -47,6 +48,7 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "نظرية الأوتار الفائقة", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/11b2721c-30cf-4793-9c1e-6e45c17c4faa/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=11b2721c-30cf-4793-9c1e-6e45c17c4faa&feed=97g_Tzxn" },
     { name: "الهنود الحمر (2)", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/73f0e310-691e-427c-a002-50876acf2e24/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=73f0e310-691e-427c-a002-50876acf2e24&feed=97g_Tzxn" },
     { name: "الهنود الحمر", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/f05c46c5-4a95-4bcd-a70d-8dfb4a189454/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=f05c46c5-4a95-4bcd-a70d-8dfb4a189454&feed=97g_Tzxn" },
     { name: "رحلة القضاء على شلل الأطفال", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/390a26f0-d091-4be4-8bf1-2945762b9227/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=390a26f0-d091-4be4-8bf1-2945762b9227&feed=97g_Tzxn" },
