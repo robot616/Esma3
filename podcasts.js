@@ -1,4 +1,6 @@
 const memoryJourneyEpisodes = [
+    { name: "كيف حصل شخص واحد على مستعمرة خاصة بحجم نصف أوروبا؟", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6ad4e8424c59b76ddb1070bc.mp3" },
+    { name: "هل ظهر التوحيد مع ظهور الدولة المركزية ولماذا لا ينطبق ذلك على مصر القديمة أو الصين؟", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6acbe7d042360429cc5ae4ab.mp3" },
     { name: "كيف تختلف التصورات التوحيدية عن الإله عن تصورات الديانات الدارمية؟", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6ac270a14c59b739aa687996.mp3" },
     { name: "كيف نجا كاسترو من مئات محاولات الاغتيال؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6ab96f224c59b7752e37a5c3.mp3" },
     { name: "هل سيصبح الإرهاب الدولي في عصر الذكاء الاصطناعي أكثر خطرا؟", url: "https://cdnv.russiatoday.com/media/audio/2026.09/6aafcd4e4236042ad079705b.mp3" },
