@@ -170,6 +170,12 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "السيف", url: "https://dl.dropboxusercontent.com/scl/fi/t19aw8nl3yrgeu89rvdbo/...mp3?rlkey=fllzarpsxa1madswdkmz70d8h&st=rgji0kfe" },
+    { name: "أحمد زويل", url: "https://dl.dropboxusercontent.com/scl/fi/yomux9ujnfmjyo742l3o5/.mp3?rlkey=t84k5nchj2but6nfkz07xstj9&st=hjjjj3aj" },
+    { name: "العدوان الثلاثي", url: "https://dl.dropboxusercontent.com/scl/fi/c4b8jidi9x3eimo5nhagc/.mp3?rlkey=i9v8yh9iv03doj7fj94q0yc4g&st=1f52kf6y" },
+    { name: "طرابزون سبور", url: "https://dl.dropboxusercontent.com/scl/fi/xbapdefyxa7dg0mpddzpg/.mp3?rlkey=eak5t0os6ste9623vdidceczo&st=3wj6vo6w" },
+    { name: "فن الحرب", url: "https://dl.dropboxusercontent.com/scl/fi/4irzvwtxtm00fpi5yqqt3/AJ.mp3?rlkey=ca0d25aq4jlh4gp03h8s6wgur&st=pyo1vcds" },
+    { name: "كلاب الشوارع", url: "https://dl.dropboxusercontent.com/scl/fi/cvgmziu4cghj8eik84tmf/AJ.mp3?rlkey=8vvoj6nbw59120a5isw0qnuln&st=xa4i0kcx" },
     { name: "أدريانو", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/72d18a9b-cc28-4b36-8885-ccc7e6de5c4d/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=72d18a9b-cc28-4b36-8885-ccc7e6de5c4d&feed=97g_Tzxn" },
     { name: "الرومانسية", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/41cc809b-3476-4363-b411-ae2773302d4c/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=41cc809b-3476-4363-b411-ae2773302d4c&feed=97g_Tzxn" },
     { name: "أدب ضد الحروب", url: "https://injector.simplecastaudio.com/fed18968-49e3-4b13-aa50-407d64fbfe46/episodes/0f559574-ad85-47b5-a673-d016a0da13ad/audio/128/default.mp3?aid=rss_feed&awCollectionId=fed18968-49e3-4b13-aa50-407d64fbfe46&awEpisodeId=0f559574-ad85-47b5-a673-d016a0da13ad&feed=97g_Tzxn" },
