@@ -1,4 +1,5 @@
 const memoryJourneyEpisodes = [
+    { name: "نشر ثقافة العمل على الطريقة الاستعمارية. الكونغو نموذجًا", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6addfc2c4c59b745300d5129.mp3" },
     { name: "كيف حصل شخص واحد على مستعمرة خاصة بحجم نصف أوروبا؟", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6ad4e8424c59b76ddb1070bc.mp3" },
     { name: "هل ظهر التوحيد مع ظهور الدولة المركزية ولماذا لا ينطبق ذلك على مصر القديمة أو الصين؟", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6acbe7d042360429cc5ae4ab.mp3" },
     { name: "كيف تختلف التصورات التوحيدية عن الإله عن تصورات الديانات الدارمية؟", url: "https://cdnv.russiatoday.com/media/audio/2026.10/6ac270a14c59b739aa687996.mp3" },
