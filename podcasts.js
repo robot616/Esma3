@@ -216,6 +216,7 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "الخوارزميات", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1793409449/Algorithm.mp3" },
     { name: "السيف", url: "https://dl.dropboxusercontent.com/scl/fi/t19aw8nl3yrgeu89rvdbo/...mp3?rlkey=fllzarpsxa1madswdkmz70d8h&st=rgji0kfe" },
     { name: "أحمد زويل", url: "https://dl.dropboxusercontent.com/scl/fi/yomux9ujnfmjyo742l3o5/.mp3?rlkey=t84k5nchj2but6nfkz07xstj9&st=hjjjj3aj" },
     { name: "العدوان الثلاثي", url: "https://dl.dropboxusercontent.com/scl/fi/c4b8jidi9x3eimo5nhagc/.mp3?rlkey=i9v8yh9iv03doj7fj94q0yc4g&st=1f52kf6y" },
