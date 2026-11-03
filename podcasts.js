@@ -216,6 +216,7 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "كيف تعاقب أمريكا العالم؟", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1793671923/3oqbat.mp3" },
     { name: "الخوارزميات", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1793409449/Algorithm.mp3" },
     { name: "السيف", url: "https://dl.dropboxusercontent.com/scl/fi/t19aw8nl3yrgeu89rvdbo/...mp3?rlkey=fllzarpsxa1madswdkmz70d8h&st=rgji0kfe" },
     { name: "أحمد زويل", url: "https://dl.dropboxusercontent.com/scl/fi/yomux9ujnfmjyo742l3o5/.mp3?rlkey=t84k5nchj2but6nfkz07xstj9&st=hjjjj3aj" },
