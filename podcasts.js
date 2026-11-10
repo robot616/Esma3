@@ -216,6 +216,8 @@ const memoryJourneyEpisodes = [
 ];
 
 const daheehEpisodes = [
+    { name: "صُنع في الصين", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1794273346/china.mp3" },
+    { name: "سيد الخواتم: حين يكون الرفض هو البطولة", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1794273344/rings.mp3" },
     { name: "كيف تعاقب أمريكا العالم؟", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1793671923/3oqbat.mp3" },
     { name: "الخوارزميات", url: "https://res.cloudinary.com/xugyuedz/video/upload/v1793409449/Algorithm.mp3" },
     { name: "السيف", url: "https://dl.dropboxusercontent.com/scl/fi/t19aw8nl3yrgeu89rvdbo/...mp3?rlkey=fllzarpsxa1madswdkmz70d8h&st=rgji0kfe" },
