@@ -863,6 +863,33 @@
         let nextClickTimeout = null;
         let prevClickTimeout = null;
 
+        // ================== منع تكرار الحلقات العشوائية لحد ما كل الحلقات تخلص ==================
+        // بيحفظ لكل بودكاست روابط الحلقات اللي اشتغلت في الدورة الحالية
+        let playedEpisodes = {};
+
+        function markEpisodePlayed(stationName, ep) {
+            if (!ep) return;
+            if (!playedEpisodes[stationName]) playedEpisodes[stationName] = [];
+            if (!playedEpisodes[stationName].includes(ep.url)) playedEpisodes[stationName].push(ep.url);
+        }
+
+        function pickRandomEpisode(stationName, epList, avoidUrl) {
+            if (!playedEpisodes[stationName]) playedEpisodes[stationName] = [];
+            let remaining = epList.filter(ep => !playedEpisodes[stationName].includes(ep.url));
+
+            // لو كل الحلقات خلصت نبدأ دورة جديدة (مع تجنب تكرار الحلقة الأخيرة على طول)
+            if (remaining.length === 0) {
+                playedEpisodes[stationName] = [];
+                remaining = epList.filter(ep => ep.url !== avoidUrl);
+                if (remaining.length === 0) remaining = epList;
+            }
+
+            const ep = remaining[Math.floor(Math.random() * remaining.length)];
+            markEpisodePlayed(stationName, ep);
+            return ep;
+        }
+        // ========================================================================================
+
         function showToast(msg) {
             const toast = document.getElementById('toastMessage');
             toast.textContent = msg;
@@ -960,6 +987,7 @@
                 localStorage.setItem('esma3_mob_idx', currentStationIndex);
                 localStorage.setItem('esma3_mob_hist', JSON.stringify(podcastHistory));
                 localStorage.setItem('esma3_mob_hist_idx', currentPodcastHistoryIndex);
+                localStorage.setItem('esma3_mob_played', JSON.stringify(playedEpisodes));
                 if (tempEpisode) localStorage.setItem('esma3_mob_ep', JSON.stringify(tempEpisode));
                 else localStorage.removeItem('esma3_mob_ep');
                 localStorage.setItem('esma3_mob_triggerPlay', '1');
@@ -992,8 +1020,9 @@
                     episodeNameEl.textContent = specificEpisode.name;
                     episodeNameEl.style.display = 'block';
                     isPodcastPlaying = true;
+                    markEpisodePlayed(station.name, specificEpisode);
                 } else if (typeof activeEpisodesList !== 'undefined' && activeEpisodesList.length > 0) {
-                    const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
+                    const randomEp = pickRandomEpisode(station.name, activeEpisodesList, (podcastHistory[currentPodcastHistoryIndex] || {}).url);
                     targetUrl = randomEp.url;
                     episodeNameEl.textContent = randomEp.name;
                     episodeNameEl.style.display = 'block';
@@ -1179,7 +1208,7 @@
                                            (currentStationName === "رعد الكردي" ? quranRaadEpisodes : quranKahfEpisodes))));
                 
                 if (activeEpisodesList && activeEpisodesList.length > 0) {
-                    const randomEp = activeEpisodesList[Math.floor(Math.random() * activeEpisodesList.length)];
+                    const randomEp = pickRandomEpisode(currentStationName, activeEpisodesList, (podcastHistory[currentPodcastHistoryIndex] || {}).url);
                     podcastHistory.push(randomEp);
                     currentPodcastHistoryIndex = podcastHistory.length - 1;
                     playStation(radioData[currentCategory][currentStationIndex], document.querySelectorAll('.station-card')[currentStationIndex], randomEp);
@@ -1361,6 +1390,7 @@
                 const savedHist = JSON.parse(localStorage.getItem('esma3_mob_hist') || '[]');
                 const savedHistIdx = parseInt(localStorage.getItem('esma3_mob_hist_idx'));
                 const savedEp = localStorage.getItem('esma3_mob_ep') ? JSON.parse(localStorage.getItem('esma3_mob_ep')) : null;
+                playedEpisodes = JSON.parse(localStorage.getItem('esma3_mob_played') || '{}');
 
                 if (savedCat && !isNaN(savedIdx)) {
                     categorySelect.value = savedCat;
